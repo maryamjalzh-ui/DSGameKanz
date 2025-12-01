@@ -1,18 +1,25 @@
-//
-//  StartingPage.swift
-//  DSGameKanz
-//
-//  Created by Sarah Aleissa on 30/11/2025.
-//
-
 import SwiftUI
 
 struct StartingPage: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+        ZStack{
+            Color.primary.ignoresSafeArea()
+            Image("Start")
+                .resizable()
+                .scaledToFit()
+            
+            VStack(alignment: .leading){
+                Text("هل انت مستعد لمساعدتي في إيجاد أصدقائي؟")
+                    .font(.custom("Farah", size:24))
+                    .padding(.leading, -450)
+            }//end of Hstack
+        }//end of Zstack
+    }//end of var
+}//end of struct
 
-#Preview {
-    StartingPage()
+struct StartingPage_Previews: PreviewProvider {
+    static var previews: some View {
+        StartingPage()// اختياري: حطي نوع الآيباد
+            .previewInterfaceOrientation(.landscapeLeft) // مهم: يخلي الكانفس عرضي
+    }
 }

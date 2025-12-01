@@ -28,10 +28,8 @@ struct SplashPage: View {
     }
 }
 
-
-
 // عشان نشوف الايباد بالعرض حطوا ذا الكود في كل صفحه
-struct ContentView_Previews: PreviewProvider {
+struct SplashPage_Previews: PreviewProvider {
     static var previews: some View {
         SplashPage()// اختياري: حطي نوع الآيباد
             .previewInterfaceOrientation(.landscapeLeft) // مهم: يخلي الكانفس عرضي
