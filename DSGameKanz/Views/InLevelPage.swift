@@ -70,10 +70,59 @@ struct DotPatternView: View {
     }
 }
 
-// MARK: - 3. صفحة اللعبة الرئيسية (InLevelPage)
-struct InLevelPage: View {
+// MARK: - شريط النجوم
+struct StarsProgressView: View {
+    let total: Int
+    let filled: Int
     
-    // إضافة وسيط بسيط لإبلاغ الجذر باكتمال المستوى
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<total, id: \.self) { index in
+                Image(systemName: index < filled ? "star.fill" : "star")
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(index < filled ? Color.yellow : Color.gray)
+            }
+        }
+        .padding(.top, 50)
+        .padding(.leading, 112)
+    }
+}
+
+// MARK: - الزر
+struct NumberChoiceButton: View {
+    let number: Int
+    let action: () -> Void
+    @Binding var selectedOption: Int?
+    let isCorrectAnswer: Int
+    let isInteractionDisabled: Bool
+    
+    var buttonColor: Color {
+        if isInteractionDisabled {
+            if number == isCorrectAnswer {
+                return Color(red: 0.2, green: 0.5, blue: 0.25)
+            } else if number == selectedOption {
+                return Color.red
+            }
+        }
+        return Color(red: 0.55, green: 0.1, blue: 0.15)
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            Text("\(number)")
+                .font(.title2)
+                .foregroundColor(.white)
+                .frame(width: 100, height: 50)
+                .background(buttonColor)
+                .cornerRadius(15)
+        }
+        .disabled(isInteractionDisabled)
+    }
+}
+
+// MARK: - 3. صفحة اللعبة الرئيسية
+struct InLevelPage: View {
     var onLevelCompleted: (() -> Void)? = nil
     
     @State private var currentPattern: DotPattern = DotPatternGenerator.randomPattern(for: 5)
@@ -89,59 +138,56 @@ struct InLevelPage: View {
     @State private var completedQuestions = 0
     let totalQuestionsInLevel = 5
     
-    @State private var isLevelCompleted = false
-    @State private var showingLevelCompletedSheet = false // متغير النافذة الجديدة
+    @State private var showingLevelCompletedSheet = false
     
     var body: some View {
         ZStack {
+            // الخلفية الضبابية
             Image("BluredMap")
                 .resizable()
-                .edgesIgnoringSafeArea(.all)
+                .scaledToFill()
+                .ignoresSafeArea()
             
-            VStack {
+            // HandsOnMap مع النجوم فوق على اليسار
+            ZStack(alignment: .topLeading) {
                 Image("HandsOnMap")
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 1000)
-                    .overlay(
-                        VStack(spacing: 3) {
-                            Text("المرحلة الأولى")
-                                .font(.system(size: 30, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(.top, 40)
-                            
-                            Text("السؤال \(completedQuestions + 1) / \(totalQuestionsInLevel)")
-                                .font(.system(size: 30, weight: .bold))
-                                .foregroundColor(.white)
-                                .frame(width: 300, height: 70)
-                                .background(Color(red: 0.55, green: 0.1, blue: 0.15))
-                                .cornerRadius(15)
-                            
-                            Text("كم عدد النقاط؟")
-                                .font(.title3)
-                                .foregroundColor(.black)
-                            
-                            DotPatternView(pattern: currentPattern)
-                                .padding(.vertical, 5)
-                            
-                            HStack(spacing: 15) {
-                                ForEach(options, id: \.self) { option in
-                                    NumberChoiceButton(
-                                        number: option,
-                                        action: { handleAnswer(option) },
-                                        selectedOption: $selectedOption,
-                                        isCorrectAnswer: currentPattern.number,
-                                        isInteractionDisabled: isInteractionDisabled
-                                    )
-                                }
-                            }
-                            .padding(.horizontal, 40)
-                            .padding(.bottom, 60)
-                            
-                            Spacer()
-                        }
-                        .padding(.top, 100)
-                    )
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                
+                StarsProgressView(total: totalQuestionsInLevel, filled: completedQuestions)
+                    .padding(20)
+            }
+            
+            // محتوى اللعبة فوق الخريطة
+            VStack {
+                Spacer()
+                
+                Text("المرحلة الأولى")
+                    .font(.system(size: 30, weight: .bold))
+                    .foregroundColor(.black)
+                
+                Text("كم عدد النقاط؟")
+                    .font(.title3)
+                    .foregroundColor(.black)
+                
+                DotPatternView(pattern: currentPattern)
+                    .padding()
+                
+                HStack(spacing: 15) {
+                    ForEach(options, id: \.self) { option in
+                        NumberChoiceButton(
+                            number: option,
+                            action: { handleAnswer(option) },
+                            selectedOption: $selectedOption,
+                            isCorrectAnswer: currentPattern.number,
+                            isInteractionDisabled: isInteractionDisabled
+                        )
+                    }
+                }
+                .padding(.horizontal, 40)
+                .padding(.bottom, 60)
                 
                 Spacer()
             }
@@ -165,9 +211,7 @@ struct InLevelPage: View {
                     .font(.largeTitle)
                     .multilineTextAlignment(.center)
                 
-                // زر العودة للخريطة
                 Button {
-                    // إغلاق الـ sheet ثم إبلاغ الجذر للرجوع للخريطة
                     showingLevelCompletedSheet = false
                     onLevelCompleted?()
                 } label: {
@@ -181,7 +225,6 @@ struct InLevelPage: View {
             }
             .padding()
         }
-
     }
     
     // MARK: - منطق اللعبة
@@ -214,38 +257,6 @@ struct InLevelPage: View {
                 showingAlert = true
             }
         }
-    }
-}
-
-// MARK: - مكون الزر
-struct NumberChoiceButton: View {
-    let number: Int
-    let action: () -> Void
-    @Binding var selectedOption: Int?
-    let isCorrectAnswer: Int
-    let isInteractionDisabled: Bool
-    
-    var buttonColor: Color {
-        if isInteractionDisabled {
-            if number == isCorrectAnswer {
-                return Color(red: 0.2, green: 0.5, blue: 0.25)
-            } else if number == selectedOption {
-                return Color.red
-            }
-        }
-        return Color(red: 0.55, green: 0.1, blue: 0.15)
-    }
-    
-    var body: some View {
-        Button(action: action) {
-            Text("\(number)")
-                .font(.title2)
-                .foregroundColor(.white)
-                .frame(width: 100, height: 50)
-                .background(buttonColor)
-                .cornerRadius(15)
-        }
-        .disabled(isInteractionDisabled)
     }
 }
 
