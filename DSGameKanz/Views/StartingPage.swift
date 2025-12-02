@@ -2,24 +2,48 @@ import SwiftUI
 
 struct StartingPage: View {
     var body: some View {
-        ZStack{
-            Color.primary.ignoresSafeArea()
+        NavigationStack{
+            ZStack{
+           Color.primary.ignoresSafeArea()
             Image("Start")
-                .resizable()
-                .scaledToFit()
-            
-            VStack(alignment: .leading){
-                Text("هل انت مستعد لمساعدتي في إيجاد أصدقائي؟")
-                    .font(.custom("Farah", size:24))
-                    .padding(.leading, -450)
-            }//end of Hstack
-        }//end of Zstack
-    }//end of var
-}//end of struct
+            .resizable()
+          .edgesIgnoringSafeArea(.all)
 
-struct StartingPage_Previews: PreviewProvider {
-    static var previews: some View {
-        StartingPage()// اختياري: حطي نوع الآيباد
-            .previewInterfaceOrientation(.landscapeLeft) // مهم: يخلي الكانفس عرضي
-    }
+                    
+            
+            VStack(alignment: .center, spacing: 8){
+                Text("هل انت مستعد لمساعدتي")
+                Text("في إيجاد أصدفائي؟")
+            }//end of Vstack
+            .font(.custom("Farah", size:50))
+            .padding(.top, -220)
+            .padding(.leading, -480)      .foregroundColor(.Burgundy)
+            
+            VStack {
+                Spacer().frame(height: 280)   // move button down under the text
+                NavigationLink(destination: CharacterChoice()) {
+                    Text("ابدأ رحلتك")
+                        .font(.custom("Farah", size:50))
+                        .foregroundColor(.white)
+                        .padding(.vertical, 18)
+                        .padding(.horizontal, 40)
+                        .background(Color.Burgundy)
+                        .cornerRadius(35)
+                }
+                .padding(.top, -200)
+                .padding(.leading, -430)
+            }//end of vstack
+            
+        }//end of Zstack
+         }//end of nagivsationstack
+    }//end of var
+    
 }
+
+    struct StartingPage_Previews: PreviewProvider {
+        static var previews: some View {
+            StartingPage()// اختياري: حطي نوع الآيباد
+                .previewInterfaceOrientation(.landscapeLeft) // مهم: يخلي الكانفس عرضي
+        }
+    }//end of struct
+

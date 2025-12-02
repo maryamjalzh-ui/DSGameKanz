@@ -1,24 +1,26 @@
-//
-//  ContentView.swift
-//  DSGameKanz
-//
-//  Created by Maryam Jalal Alzahrani on 29/05/1447 AH.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showSplash = true
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if showSplash {
+                SplashPage {
+                    withAnimation {
+                        showSplash = false      // <-- بعد السبلش يروح للستارتنق
+                    }
+                }
+            } else {
+                StartingPage()
+            }
         }
-        .padding()
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .previewInterfaceOrientation(.landscapeLeft)
+    }
 }

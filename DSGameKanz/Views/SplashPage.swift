@@ -1,20 +1,14 @@
-//
-//  SplashPage.swift
-//  DSGameKanz
-//
-//  Created by Maryam Jalal Alzahrani on 29/05/1447 AH.
-//
-
 import SwiftUI
 
 struct SplashPage: View {
     @State private var animate = false
-    
+    let onFinished: () -> Void          // <-- NEW
+
     var body: some View {
         ZStack {
-            Color.primary.ignoresSafeArea() // خلفية سوده بسيطة (غيّري اللون لو تبين)
+            Color.primary.ignoresSafeArea()
             
-            Image("Group") // اسم الصورة اللي حطيتِها في الـ Assets
+            Image("Group")
                 .resizable()
                 .scaledToFit()
                 .padding(110)
@@ -24,14 +18,17 @@ struct SplashPage: View {
         }
         .onAppear {
             animate = true
+            // wait then call onFinished
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                onFinished()
+            }
         }
     }
 }
 
-// عشان نشوف الايباد بالعرض حطوا ذا الكود في كل صفحه
 struct SplashPage_Previews: PreviewProvider {
     static var previews: some View {
-        SplashPage()// اختياري: حطي نوع الآيباد
-            .previewInterfaceOrientation(.landscapeLeft) // مهم: يخلي الكانفس عرضي
+        SplashPage { }
+            .previewInterfaceOrientation(.landscapeLeft)
     }
 }

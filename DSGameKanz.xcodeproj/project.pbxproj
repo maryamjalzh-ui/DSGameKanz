@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C617843F2EDF08A900D81372 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = C617843E2EDF08A900D81372 /* Models.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5C2B32C22ECF3B520071370D /* DSGameKanz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DSGameKanz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C617843E2EDF08A900D81372 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		5C2B32B92ECF3B520071370D = {
 			isa = PBXGroup;
 			children = (
+				C617843D2EDF089400D81372 /* Models */,
 				5C2B32C42ECF3B520071370D /* DSGameKanz */,
 				5C2B32C32ECF3B520071370D /* Products */,
 			);
@@ -43,6 +49,14 @@
 				5C2B32C22ECF3B520071370D /* DSGameKanz.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C617843D2EDF089400D81372 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C617843E2EDF08A900D81372 /* Models.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,6 +133,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C617843F2EDF08A900D81372 /* Models.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
