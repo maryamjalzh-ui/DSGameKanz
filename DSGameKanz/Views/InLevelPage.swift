@@ -1,28 +1,16 @@
-//
-//  InLevelPage.swift
-//  DSGameKanz
-//
-//  Created by Maryam Jalal Alzahrani on 10/06/1447 AH.
-//
-
 import SwiftUI
 
 // MARK: - 1. هياكل البيانات ومولّد الأنماط
-// ----------------------------------------------------------------
 struct DotPattern {
-    let number: Int      // الرقم الصحيح (كم نقطة المفروض)
-    let columns: [Int]   // كم نقطة في كل عمود
+    let number: Int
+    let columns: [Int]
 }
 
 struct DotPatternGenerator {
     static let templates: [Int: [[Int]]] = [
-        3: [[3], [2, 1]],
-        4: [[4], [2, 2]],
-        5: [[5], [3, 2]],
-        6: [[5, 1], [3, 3]],
-        7: [[5, 2], [4, 3], [3, 2, 2]],
-        8: [[5, 3], [4, 4], [3, 3, 2]],
-        9: [[5, 4], [3, 3, 3]]
+        3: [[3], [2, 1]], 4: [[4], [2, 2]], 5: [[5], [3, 2]],
+        6: [[5, 1], [3, 3]], 7: [[5, 2], [4, 3], [3, 2, 2]],
+        8: [[5, 3], [4, 4], [3, 3, 2]], 9: [[5, 4], [3, 3, 3]]
     ]
     
     static var supportedNumbers: [Int] {
@@ -37,8 +25,6 @@ struct DotPatternGenerator {
     
     static func generateQuestion() -> (pattern: DotPattern, options: [Int]) {
         let newPattern = randomPatternInSupportedRange()
-        
-        // نولّد 3 اختيارات: واحد صحيح و 2 عشوائية (من الأرقام المدعومة)
         var optionsSet = Set<Int>()
         optionsSet.insert(newPattern.number)
         
@@ -61,7 +47,6 @@ struct DotPatternGenerator {
 }
 
 // MARK: - 2. عرض النقاط كنمط
-// ----------------------------------------------------------------
 struct DotPatternView: View {
     let pattern: DotPattern
     
@@ -73,7 +58,7 @@ struct DotPatternView: View {
                 VStack(spacing: 8) {
                     ForEach(0..<dotsCount, id: \.self) { _ in
                         Circle()
-                            .fill(Color.red) // لون النقاط
+                            .fill(Color.red)
                             .frame(width: 28, height: 28)
                             .shadow(radius: 1)
                     }
@@ -81,34 +66,38 @@ struct DotPatternView: View {
             }
         }
         .padding()
-        // لجعل منطقة النقاط تأخذ مساحة كافية لتظهر فوق الورقة البنية
         .frame(minHeight: 150)
     }
 }
 
 // MARK: - 3. صفحة اللعبة الرئيسية (InLevelPage)
-// ----------------------------------------------------------------
 struct InLevelPage: View {
     
-    // حالة السؤال والخيارات العشوائية
+    // إضافة وسيط بسيط لإبلاغ الجذر باكتمال المستوى
+    var onLevelCompleted: (() -> Void)? = nil
+    
     @State private var currentPattern: DotPattern = DotPatternGenerator.randomPattern(for: 5)
     @State private var options: [Int] = []
     
-    // حالة للتحقق من الإجابة وعرض التنبيه
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var isAnswerCorrect = false
-    @State private var questionCounter = 1 // لعد الأسئلة
+    
+    @State private var isInteractionDisabled = false
+    @State private var selectedOption: Int?
+    
+    @State private var completedQuestions = 0
+    let totalQuestionsInLevel = 5
+    
+    @State private var isLevelCompleted = false
+    @State private var showingLevelCompletedSheet = false // متغير النافذة الجديدة
     
     var body: some View {
         ZStack {
-            
-            // 1. الخلفية: صورة الخريطة الأساسية
             Image("BluredMap")
                 .resizable()
                 .edgesIgnoringSafeArea(.all)
             
-            // 2. المحتوى الأمامي: الورقة البنية مع السؤال والاختيارات
             VStack {
                 Image("HandsOnMap")
                     .resizable()
@@ -116,22 +105,18 @@ struct InLevelPage: View {
                     .frame(maxWidth: 1000)
                     .overlay(
                         VStack(spacing: 3) {
-                            
-                            // العنوان ورقم المرحلة
                             Text("المرحلة الأولى")
                                 .font(.system(size: 30, weight: .bold))
                                 .foregroundColor(.black)
                                 .padding(.top, 40)
                             
-                            // منطقة السؤال (السؤال ١)
-                            Text("السؤال \(questionCounter)")
+                            Text("السؤال \(completedQuestions + 1) / \(totalQuestionsInLevel)")
                                 .font(.system(size: 30, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(width: 300, height: 70)
                                 .background(Color(red: 0.55, green: 0.1, blue: 0.15))
                                 .cornerRadius(15)
                             
-                            // عرض نمط النقاط هنا
                             Text("كم عدد النقاط؟")
                                 .font(.title3)
                                 .foregroundColor(.black)
@@ -139,17 +124,19 @@ struct InLevelPage: View {
                             DotPatternView(pattern: currentPattern)
                                 .padding(.vertical, 5)
                             
-                            // منطقة الاختيارات (3 أزرار)
                             HStack(spacing: 15) {
-                                // استخدام ForEach لعرض الأرقام كخيارات
                                 ForEach(options, id: \.self) { option in
-                                    NumberChoiceButton(number: option, action: {
-                                        handleAnswer(option)
-                                    }, isCorrect: option == currentPattern.number) // نحدد اللون الأخضر للإجابة الصحيحة
+                                    NumberChoiceButton(
+                                        number: option,
+                                        action: { handleAnswer(option) },
+                                        selectedOption: $selectedOption,
+                                        isCorrectAnswer: currentPattern.number,
+                                        isInteractionDisabled: isInteractionDisabled
+                                    )
                                 }
                             }
                             .padding(.horizontal, 40)
-                            .padding(.bottom, 60) // مسافة لإبعاد الأزرار عن أسفل الورقة
+                            .padding(.bottom, 60)
                             
                             Spacer()
                         }
@@ -160,63 +147,93 @@ struct InLevelPage: View {
             }
         }
         .onAppear {
-            generateNewQuestion() // توليد أول سؤال عند بدء الصفحة
+            generateNewQuestion(isInitial: true)
         }
-        // إضافة التنبيه (Alert) لإظهار النتيجة
+        .disabled(isInteractionDisabled)
         .alert(isPresented: $showingAlert) {
             Alert(
                 title: Text(isAnswerCorrect ? "إجابة صحيحة! 🎉" : "إجابة خاطئة! 😔"),
                 message: Text(alertMessage),
                 dismissButton: .default(Text("التالي")) {
-                    generateNewQuestion() // توليد سؤال جديد بعد الإغلاق
+                    generateNewQuestion()
                 }
             )
         }
+        .sheet(isPresented: $showingLevelCompletedSheet) {
+            VStack(spacing: 30) {
+                Text("🎉 تهانينا! أكملت المستوى! 🎉")
+                    .font(.largeTitle)
+                    .multilineTextAlignment(.center)
+                
+                // زر العودة للخريطة
+                Button {
+                    // إغلاق الـ sheet ثم إبلاغ الجذر للرجوع للخريطة
+                    showingLevelCompletedSheet = false
+                    onLevelCompleted?()
+                } label: {
+                    Text("العودة إلى الخريطة")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 250, height: 50)
+                        .background(Color.blue)
+                        .cornerRadius(15)
+                }
+            }
+            .padding()
+        }
+
     }
     
     // MARK: - منطق اللعبة
-    
-    /// توليد سؤال جديد (باترِن + خيارات)
-    private func generateNewQuestion() {
+    private func generateNewQuestion(isInitial: Bool = false) {
         let (newPattern, newOptions) = DotPatternGenerator.generateQuestion()
         currentPattern = newPattern
         options = newOptions
-        questionCounter += 1
-        
-        // إذا لم يكن السؤال الأول، نزيل التنبيه (في حال تم استدعاء الدالة بعد التنبيه)
-        if questionCounter > 1 {
-            showingAlert = false
-        }
+        isInteractionDisabled = false
+        selectedOption = nil
+        showingAlert = false
     }
     
-    /// التحقق من الإجابة
     private func handleAnswer(_ answer: Int) {
+        isInteractionDisabled = true
+        selectedOption = answer
+        
         if answer == currentPattern.number {
             isAnswerCorrect = true
             alertMessage = "أحسنت! الإجابة صحيحة."
+            completedQuestions += 1
         } else {
             isAnswerCorrect = false
             alertMessage = "للأسف، الإجابة خاطئة. الإجابة الصحيحة هي: \(currentPattern.number)."
         }
-        showingAlert = true
+        
+        if completedQuestions >= totalQuestionsInLevel {
+            showingLevelCompletedSheet = true
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                showingAlert = true
+            }
+        }
     }
 }
 
-// مكون فرعي لتمثيل زر اختيار الرقم
+// MARK: - مكون الزر
 struct NumberChoiceButton: View {
     let number: Int
     let action: () -> Void
-    let isCorrect: Bool
+    @Binding var selectedOption: Int?
+    let isCorrectAnswer: Int
+    let isInteractionDisabled: Bool
     
-    // تحديد لون الخلفية بناءً على ما إذا كانت الإجابة صحيحة (فقط للعرض في الكود، اللون سيستخدم فقط عند الإجابة)
-    // ولكن لتوحيد شكل الأزرار، سنستخدم اللون الأحمر الداكن والأخضر للزر الصحيح.
     var buttonColor: Color {
-        // نختار لون مقارب لـ ... والأخضر للزر الأيمن كما في الصورة الأصلية.
-        // بما أن الاختيارات عشوائية، سنستخدم اللون الأحمر الداكن للكل، ونجعل اللون الأخضر يظهر عند الضغط في منطق الـ Alert
-        // لكن لتبدو الواجهة مشابهة لتصميمك الأصلي: سنجعل زر الإجابة الصحيحة يظهر باللون الأخضر هنا
-        // بما أن الأزرار عشوائية، لا يمكننا تطبيق اللون الأخضر على زر ثابت، لذا سنعتمد على منطق الألوان الذي وضعته سابقا (أحمر للاثنين الأولين، أخضر للثالث)
-        // لنستخدم الألوان المقاربة لصورتك الأصلية:
-        return Color(red: 0.55, green: 0.1, blue: 0.15) // اللون الأحمر الداكن
+        if isInteractionDisabled {
+            if number == isCorrectAnswer {
+                return Color(red: 0.2, green: 0.5, blue: 0.25)
+            } else if number == selectedOption {
+                return Color.red
+            }
+        }
+        return Color(red: 0.55, green: 0.1, blue: 0.15)
     }
     
     var body: some View {
@@ -225,17 +242,17 @@ struct NumberChoiceButton: View {
                 .font(.title2)
                 .foregroundColor(.white)
                 .frame(width: 100, height: 50)
-                .background(isCorrect ? Color(red: 0.2, green: 0.5, blue: 0.25) : buttonColor) // نحدد لون الزر الصحيح ليميزه
+                .background(buttonColor)
                 .cornerRadius(15)
         }
+        .disabled(isInteractionDisabled)
     }
 }
 
-// عرض المعاينة
+// MARK: - المعاينة
 struct InLevelPage_Previews: PreviewProvider {
     static var previews: some View {
-        
         InLevelPage()
-        .previewInterfaceOrientation(.landscapeLeft)
+            .previewInterfaceOrientation(.landscapeLeft)
     }
 }
