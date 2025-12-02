@@ -9,12 +9,27 @@ import SwiftUI
 
 struct CharacterChoice: View {
     var body: some View {
-//        .navigationBarBackButtonHidden(true)
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-         
-    }
-}
+        NavigationStack{
+       
+            ZStack{
+                Color.primary.ignoresSafeArea()
+                Image("Choose")
+                    .resizable()
+                    .edgesIgnoringSafeArea(.all)
+                
+                
+                
+                
+                
+            }//end of zstack
+        }//end of navigation)
+        .navigationBarBackButtonHidden(true)
+    }//end of var
+}//end of struct
 
-#Preview {
-    CharacterChoice()
-}
+struct CharacterChoice_Previews: PreviewProvider {
+    static var previews: some View {
+        CharacterChoice()// اختياري: حطي نوع الآيباد
+            .previewInterfaceOrientation(.landscapeLeft) // مهم: يخلي الكانفس عرضي
+    }
+}//end of struct
