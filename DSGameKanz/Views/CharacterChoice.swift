@@ -29,6 +29,14 @@ struct CharacterChoice: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             
+            VStack(alignment: .center, spacing: 8){
+                Text("اختر شخصيتك!")
+            }//end of Vstack
+            .font(.custom("Farah", size:60))
+            .padding(.top, -250)
+            .padding(.leading)      .foregroundColor(.CinnamonWood)
+            
+            
             // content
             VStack {
                 Spacer().frame(height: 80)
