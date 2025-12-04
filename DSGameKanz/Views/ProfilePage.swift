@@ -121,7 +121,7 @@ struct ProfilePage: View {
     }
 }
 
-#Preview {
+#Preview(traits: .landscapeLeft) {
     // مثال: مفتوح نينا وهابر فقط
     ProfilePage(unlockedCharacters: ["nina", "jack"])
 }

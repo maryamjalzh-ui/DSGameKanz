@@ -58,7 +58,7 @@ struct DotPatternView: View {
                 VStack(spacing: 8) {
                     ForEach(0..<dotsCount, id: \.self) { _ in
                         Circle()
-                            .fill(Color.red)
+                            .fill(Color.Fern)
                             .frame(width: 28, height: 28)
                             .shadow(radius: 1)
                     }
@@ -71,21 +71,41 @@ struct DotPatternView: View {
 }
 
 // MARK: - شريط النجوم
-struct StarsProgressView: View {
+// MARK: - شريط التقدم البكسلي الجديد
+// MARK: - شريط التقدم البكسلي الجديد (مع الانيميشن)
+struct PixelProgressBar: View {
     let total: Int
     let filled: Int
     
+    var progress: Double {
+        Double(filled) / Double(total)
+    }
+    
+    let height: CGFloat = 20
+    let width: CGFloat = 200
+    let cornerRadius: CGFloat = 5
+    
     var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<total, id: \.self) { index in
-                Image(systemName: index < filled ? "star.fill" : "star")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(index < filled ? Color.yellow : Color.gray)
-            }
+        ZStack(alignment: .leading) {
+            // 1. الخلفية
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .stroke(Color.black, lineWidth: 3)
+                .background(RoundedRectangle(cornerRadius: cornerRadius).fill(Color.gray.opacity(0.3)))
+                .frame(width: width, height: height)
+            
+            // 2. شريط التقدم المملوء (هنا نضيف الانيميشن)
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(Color.Fern)
+                .frame(width: width * CGFloat(progress), height: height)
+                // 🔑 إضافة الانيميشن هنا: يجعل التغيير في العرض سلسًا
+                .animation(.easeOut(duration: 0.5), value: progress)
+            
+            // 3. النص فوق الشريط
+            Text("\(filled) / \(total)")
+                .font(.caption.bold())
+                .foregroundColor(.black)
+                .frame(width: width, height: height, alignment: .center)
         }
-        .padding(.top, 50)
-        .padding(.leading, 112)
     }
 }
 
@@ -99,10 +119,10 @@ struct NumberChoiceButton: View {
     
     var buttonColor: Color {
         if isInteractionDisabled {
-            if number == isCorrectAnswer {
-                return Color(red: 0.2, green: 0.5, blue: 0.25)
+            if number == isCorrectAnswer && selectedOption == isCorrectAnswer {
+                return Color.Fern
             } else if number == selectedOption {
-                return Color.red
+                return Color.CinnamonWood
             }
         }
         return Color(red: 0.55, green: 0.1, blue: 0.15)
@@ -119,6 +139,47 @@ struct NumberChoiceButton: View {
         }
         .disabled(isInteractionDisabled)
     }
+}
+
+
+struct ConfettiView: View {
+    let particles = ["🎉", "✨", "🥳", "🌟", "🎈"]
+    var body: some View {
+        ZStack {
+            ForEach(0..<100, id: \.self) { _ in
+                Text(particles.randomElement()!)
+                    .font(.system(size: CGFloat.random(in: 15...40)))
+                    .rotationEffect(.degrees(Double.random(in: 0...360)))
+                    .offset(x: CGFloat.random(in: -200...200), y: CGFloat.random(in: -500...300))
+                    .scaleEffect(CGFloat.random(in: 0.5...4.5))
+                    .opacity(Double.random(in: 0.5...2.0))
+                    .modifier(ConfettiAnimationModifier())
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.001))
+    }
+}
+
+struct ConfettiAnimationModifier: ViewModifier {
+    @State private var offset: CGSize = .zero
+    @State private var opacity: Double = 1.0
+    
+    func body(content: Content) -> some View {
+        content
+            .offset(offset)
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.easeOut(duration: 3.5)) {
+                    offset = CGSize(
+                        width: CGFloat.random(in: -200...200),
+                        height: CGFloat.random(in: 300...600)
+                        )
+                    opacity = 0.0
+                }
+            }
+    }
+
 }
 
 // MARK: - 3. صفحة اللعبة الرئيسية
@@ -139,7 +200,8 @@ struct InLevelPage: View {
     let totalQuestionsInLevel = 5
     
     @State private var showingLevelCompletedSheet = false
-    
+    @State private var ShowConfettie  = false
+
     var body: some View {
         ZStack {
             // الخلفية الضبابية
@@ -156,8 +218,9 @@ struct InLevelPage: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                 
-                StarsProgressView(total: totalQuestionsInLevel, filled: completedQuestions)
-                    .padding(20)
+                PixelProgressBar(total: totalQuestionsInLevel, filled: completedQuestions)
+                    .padding(60)
+                    .padding(.leading, 70)
             }
             
             // محتوى اللعبة فوق الخريطة
@@ -190,42 +253,33 @@ struct InLevelPage: View {
                 .padding(.bottom, 60)
                 
                 Spacer()
+                
+            }
+            if ShowConfettie {
+                ConfettiView()
+                    .zIndex(1)
+                    .allowsHitTesting(false)
+                
             }
         }
         .onAppear {
             generateNewQuestion(isInitial: true)
         }
+        
         .disabled(isInteractionDisabled)
         .alert(isPresented: $showingAlert) {
             Alert(
-                title: Text(isAnswerCorrect ? "إجابة صحيحة! 🎉" : "إجابة خاطئة! 😔"),
+                title: Text( "إجابه خاطئه"),
                 message: Text(alertMessage),
-                dismissButton: .default(Text("التالي")) {
-                    generateNewQuestion()
+                dismissButton: .default(Text("اعد المحاوله")) {
+                    isInteractionDisabled = false
+                    selectedOption = nil
                 }
             )
+            
         }
-        .sheet(isPresented: $showingLevelCompletedSheet) {
-            VStack(spacing: 30) {
-                Text("🎉 تهانينا! أكملت المستوى! 🎉")
-                    .font(.largeTitle)
-                    .multilineTextAlignment(.center)
-                
-                Button {
-                    showingLevelCompletedSheet = false
-                    onLevelCompleted?()
-                } label: {
-                    Text("العودة إلى الخريطة")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .frame(width: 250, height: 50)
-                        .background(Color.blue)
-                        .cornerRadius(15)
-                }
-            }
-            .padding()
-        }
-    }
+        
+    } 
     
     // MARK: - منطق اللعبة
     private func generateNewQuestion(isInitial: Bool = false) {
@@ -243,16 +297,31 @@ struct InLevelPage: View {
         
         if answer == currentPattern.number {
             isAnswerCorrect = true
-            alertMessage = "أحسنت! الإجابة صحيحة."
-            completedQuestions += 1
+            
+            withAnimation {
+                completedQuestions += 1
+            }
+            
+            ShowConfettie = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                ShowConfettie = false
+            }
+            
+            if completedQuestions >= totalQuestionsInLevel {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    ShowConfettie = true
+            }
+            
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    generateNewQuestion()
+                }
+            }
+        
         } else {
             isAnswerCorrect = false
-            alertMessage = "للأسف، الإجابة خاطئة. الإجابة الصحيحة هي: \(currentPattern.number)."
-        }
-        
-        if completedQuestions >= totalQuestionsInLevel {
-            showingLevelCompletedSheet = true
-        } else {
+            alertMessage = "للاسف الاجابه خاطئه حاول مره اخرى"
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 showingAlert = true
             }
