@@ -6,10 +6,11 @@ enum CharacterType: String {
 }
 
 struct CharacterChoice: View {
-    // stored in UserDefaults
+    
+    // saved permanently in UserDefaults
     @AppStorage("selectedCharacter") private var selectedCharacterRaw: String = ""
     
-    @State private var float = false      // for up–down animation
+    @State private var float = false
     
     // helpers
     private var isFemaleSelected: Bool {
@@ -19,8 +20,13 @@ struct CharacterChoice: View {
         selectedCharacterRaw == CharacterType.male.rawValue
     }
     
+    // colors
+    private var defaultColor: Color { .Burgundy }   // red
+    private var selectedColor: Color { .Fern }      // green
+    
     var body: some View {
         ZStack {
+            
             // background
             Color.primary.ignoresSafeArea()
             
@@ -31,20 +37,21 @@ struct CharacterChoice: View {
             
             VStack(alignment: .center, spacing: 8){
                 Text("اختر شخصيتك!")
-            }//end of Vstack
-            .font(.custom("Farah", size:60))
+            }
+            .font(.custom("Farah", size: 60))
             .padding(.top, -250)
-            .padding(.leading)      .foregroundColor(.CinnamonWood)
+            .foregroundColor(.CinnamonWood)
             
-            
-            // content
             VStack {
                 Spacer().frame(height: 80)
                 
                 HStack(alignment: .center, spacing: 160) {
                     
-                    // FEMALE
+                    // ---------------------
+                    //       FEMALE
+                    // ---------------------
                     VStack(spacing: 24) {
+                        
                         Image("Female")
                             .resizable()
                             .scaledToFit()
@@ -57,7 +64,6 @@ struct CharacterChoice: View {
                             )
                         
                         Button {
-                            // ✅ just save the raw value
                             selectedCharacterRaw = CharacterType.female.rawValue
                         } label: {
                             Text("1")
@@ -66,15 +72,15 @@ struct CharacterChoice: View {
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 8)
                                 .background(
-                                    isFemaleSelected
-                                    ? Color.Fern       // selected = green
-                                    : Color.Burgundy        // default
+                                    isFemaleSelected ? selectedColor : defaultColor
                                 )
                                 .cornerRadius(20)
                         }
                     }
                     
-                    // MALE
+                    // ---------------------
+                    //        MALE
+                    // ---------------------
                     VStack(spacing: 73) {
                         Image("Male")
                             .resizable()
@@ -89,7 +95,6 @@ struct CharacterChoice: View {
                         
                         Button {
                             selectedCharacterRaw = CharacterType.male.rawValue
-                            
                         } label: {
                             Text("2")
                                 .font(.custom("Farah", size: 36))
@@ -97,12 +102,9 @@ struct CharacterChoice: View {
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 8)
                                 .background(
-                                    isMaleSelected
-                                    ? Color.Fern
-                                    : Color.Burgundy
+                                    isMaleSelected ? selectedColor : defaultColor
                                 )
                                 .cornerRadius(20)
-                            
                         }
                     }
                 }
@@ -113,6 +115,7 @@ struct CharacterChoice: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             float = true
+            selectedCharacterRaw = ""
         }
     }
 }
