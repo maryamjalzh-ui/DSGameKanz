@@ -58,7 +58,7 @@ struct DotPatternView: View {
                 VStack(spacing: 8) {
                     ForEach(0..<dotsCount, id: \.self) { _ in
                         Circle()
-                            .fill(Color.red)
+                            .fill(Color.Fern)
                             .frame(width: 28, height: 28)
                             .shadow(radius: 1)
                     }
@@ -70,22 +70,39 @@ struct DotPatternView: View {
     }
 }
 
-// MARK: - شريط النجوم
-struct StarsProgressView: View {
+// MARK: - شريط التقدم البكسلي
+struct PixelProgressBar: View {
     let total: Int
     let filled: Int
     
+    var progress: Double {
+        Double(filled) / Double(total)
+    }
+    
+    let height: CGFloat = 20
+    let width: CGFloat = 200
+    let cornerRadius: CGFloat = 5
+    
     var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<total, id: \.self) { index in
-                Image(systemName: index < filled ? "star.fill" : "star")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(index < filled ? Color.yellow : Color.gray)
-            }
+        ZStack(alignment: .leading) {
+            // 1. الخلفية
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .stroke(Color.black, lineWidth: 3)
+                .background(RoundedRectangle(cornerRadius: cornerRadius).fill(Color.gray.opacity(0.3)))
+                .frame(width: width, height: height)
+            
+            // 2. شريط التقدم المملوء (هنا نضيف الانيميشن)
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(Color.Fern)
+                .frame(width: width * CGFloat(progress), height: height)
+                .animation(.easeOut(duration: 0.5), value: progress)
+            
+            // 3. النص فوق الشريط
+            Text("\(filled) / \(total)")
+                .font(.caption.bold())
+                .foregroundColor(.black)
+                .frame(width: width, height: height, alignment: .center)
         }
-        .padding(.top, 50)
-        .padding(.leading, 112)
     }
 }
 
@@ -99,10 +116,10 @@ struct NumberChoiceButton: View {
     
     var buttonColor: Color {
         if isInteractionDisabled {
-            if number == isCorrectAnswer {
-                return Color(red: 0.2, green: 0.5, blue: 0.25)
+            if number == isCorrectAnswer && selectedOption == isCorrectAnswer {
+                return Color.Fern
             } else if number == selectedOption {
-                return Color.red
+                return Color.CinnamonWood
             }
         }
         return Color(red: 0.55, green: 0.1, blue: 0.15)
@@ -121,8 +138,79 @@ struct NumberChoiceButton: View {
     }
 }
 
+// MARK: - الكنفيتي (Confetti)
+struct ConfettiView: View {
+    let particles = ["🎉", "✨", "🥳", "🌟", "🎈"]
+    var body: some View {
+        ZStack {
+            ForEach(0..<100, id: \.self) { _ in
+                Text(particles.randomElement()!)
+                    .font(.system(size: CGFloat.random(in: 15...40)))
+                    .rotationEffect(.degrees(Double.random(in: 0...360)))
+                    // زيادة مدى Y لجعلها تسقط من الأعلى
+                    .offset(x: CGFloat.random(in: -200...200), y: CGFloat.random(in: -500...300))
+                    .scaleEffect(CGFloat.random(in: 0.5...4.5))
+                    .opacity(Double.random(in: 0.5...2.0))
+                    .modifier(ConfettiAnimationModifier())
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.001))
+    }
+}
+
+struct ConfettiAnimationModifier: ViewModifier {
+    @State private var offset: CGSize = .zero
+    @State private var opacity: Double = 1.0
+    
+    func body(content: Content) -> some View {
+        content
+            .offset(offset)
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.easeOut(duration: 3.5)) {
+                    offset = CGSize(
+                        width: CGFloat.random(in: -200...200),
+                        height: CGFloat.random(in: 300...600)
+                        )
+                    opacity = 0.0
+                }
+            }
+    }
+}
+
+// 🔑 واجهة رسالة اكتمال المستوى الجديدة
+struct LevelCompletedSheet: View {
+    // هذه الدالة سيتم استدعاؤها عند ضغط زر الانتقال
+    var onDismiss: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 30) {
+            Text("🎉 تهانينا! أكملت المرحلة الأولى بنجاح! 🎉")
+                .font(.largeTitle)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.black)
+            
+            Button(action: onDismiss) {
+                Text("الانتقال إلى الخريطة")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .frame(width: 250, height: 50)
+                    .background(Color.blue) // يمكنك تغيير اللون
+                    .cornerRadius(15)
+            }
+        }
+        .padding(50)
+        .background(Color.white)
+        .cornerRadius(20)
+    }
+}
+
+
 // MARK: - 3. صفحة اللعبة الرئيسية
 struct InLevelPage: View {
+    
+    // 🔑 1. دالة للربط بالخارج لتنفيذ العودة إلى RoadMapPage
     var onLevelCompleted: (() -> Void)? = nil
     
     @State private var currentPattern: DotPattern = DotPatternGenerator.randomPattern(for: 5)
@@ -139,7 +227,8 @@ struct InLevelPage: View {
     let totalQuestionsInLevel = 5
     
     @State private var showingLevelCompletedSheet = false
-    
+    @State private var ShowConfettie = false
+
     var body: some View {
         ZStack {
             // الخلفية الضبابية
@@ -156,74 +245,83 @@ struct InLevelPage: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                 
-                StarsProgressView(total: totalQuestionsInLevel, filled: completedQuestions)
-                    .padding(20)
+                PixelProgressBar(total: totalQuestionsInLevel, filled: completedQuestions)
+                    .padding(60)
+                    .padding(.leading, 70)
             }
             
             // محتوى اللعبة فوق الخريطة
             VStack {
                 Spacer()
                 
-                Text("المرحلة الأولى")
-                    .font(.system(size: 30, weight: .bold))
-                    .foregroundColor(.black)
-                
-                Text("كم عدد النقاط؟")
-                    .font(.title3)
-                    .foregroundColor(.black)
-                
-                DotPatternView(pattern: currentPattern)
-                    .padding()
-                
-                HStack(spacing: 15) {
-                    ForEach(options, id: \.self) { option in
-                        NumberChoiceButton(
-                            number: option,
-                            action: { handleAnswer(option) },
-                            selectedOption: $selectedOption,
-                            isCorrectAnswer: currentPattern.number,
-                            isInteractionDisabled: isInteractionDisabled
-                        )
+                VStack (spacing: 45) {
+                    Text(" كم عدد النقاط؟")
+                        .font(.custom("Farah", size: 50))
+                        .shadow(radius: 10)
+                        .foregroundColor(.CinnamonWood)
+                        .padding(.top, 50)
+        
+                    
+                    DotPatternView(pattern: currentPattern)
+                        .padding(.vertical, 10)
+                    
+                    HStack(spacing: 15) {
+                        ForEach(options, id: \.self) { option in
+                            NumberChoiceButton(
+                                number: option,
+                                action: { handleAnswer(option) },
+                                selectedOption: $selectedOption,
+                                isCorrectAnswer: currentPattern.number,
+                                isInteractionDisabled: isInteractionDisabled
+                            )
+                        }
                     }
+                    .padding(.horizontal, 40)
+                    .padding(.bottom, 60)
                 }
-                .padding(.horizontal, 40)
-                .padding(.bottom, 60)
-                
+                .background(
+                    RoundedRectangle(cornerRadius: 25)
+                    .fill(Color.PacificBlue.opacity(0.25))
+                    .shadow(radius: 10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 25)
+                            .stroke(Color.Fern)
+                        )
+                    )
                 Spacer()
+                
+            }
+            
+            // عرض الكنفيتي كطبقة علوية
+            if ShowConfettie {
+                ConfettiView()
+                    .zIndex(1)
+                    .allowsHitTesting(false)
             }
         }
         .onAppear {
             generateNewQuestion(isInitial: true)
         }
+        
         .disabled(isInteractionDisabled)
+        // تنبيه الإجابة الخاطئة
         .alert(isPresented: $showingAlert) {
             Alert(
-                title: Text(isAnswerCorrect ? "إجابة صحيحة! 🎉" : "إجابة خاطئة! 😔"),
+                title: Text( "إجابه خاطئه"),
                 message: Text(alertMessage),
-                dismissButton: .default(Text("التالي")) {
-                    generateNewQuestion()
+                dismissButton: .default(Text("اعد المحاوله")) {
+                    isInteractionDisabled = false
+                    selectedOption = nil
                 }
             )
         }
+        // 🔑 واجهة اكتمال المستوى (Sheet)
         .sheet(isPresented: $showingLevelCompletedSheet) {
-            VStack(spacing: 30) {
-                Text("🎉 تهانينا! أكملت المستوى! 🎉")
-                    .font(.largeTitle)
-                    .multilineTextAlignment(.center)
-                
-                Button {
-                    showingLevelCompletedSheet = false
-                    onLevelCompleted?()
-                } label: {
-                    Text("العودة إلى الخريطة")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .frame(width: 250, height: 50)
-                        .background(Color.blue)
-                        .cornerRadius(15)
-                }
-            }
-            .padding()
+            LevelCompletedSheet(onDismiss: {
+                // عند ضغط زر الانتقال في الـ Sheet
+                showingLevelCompletedSheet = false
+                onLevelCompleted?() // استدعاء الدالة التي ستعيدك للخريطة
+            })
         }
     }
     
@@ -243,16 +341,34 @@ struct InLevelPage: View {
         
         if answer == currentPattern.number {
             isAnswerCorrect = true
-            alertMessage = "أحسنت! الإجابة صحيحة."
-            completedQuestions += 1
+            
+            withAnimation {
+                completedQuestions += 1
+            }
+            
+            ShowConfettie = true
+            let confettiDuration: Double = 2.5
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + confettiDuration) {
+                ShowConfettie = false
+            }
+            
+            if completedQuestions >= totalQuestionsInLevel {
+                // 🔑 إظهار الـ Sheet بعد انتهاء الاحتفالية بـ 0.5 ثانية
+                DispatchQueue.main.asyncAfter(deadline: .now() + confettiDuration + 0.5) {
+                    showingLevelCompletedSheet = true
+                }
+            } else {
+                // الانتقال للسؤال التالي بعد انتهاء الاحتفالية بـ 0.5 ثانية
+                DispatchQueue.main.asyncAfter(deadline: .now() + confettiDuration + 0.5) {
+                    generateNewQuestion()
+                }
+            }
+            
         } else {
             isAnswerCorrect = false
-            alertMessage = "للأسف، الإجابة خاطئة. الإجابة الصحيحة هي: \(currentPattern.number)."
-        }
-        
-        if completedQuestions >= totalQuestionsInLevel {
-            showingLevelCompletedSheet = true
-        } else {
+            alertMessage = "للاسف الاجابه خاطئه حاول مره اخرى"
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 showingAlert = true
             }
