@@ -24,36 +24,41 @@ struct ProfilePage: View {
         "maya":   CGSize(width: 130,  height: 140)
     ]
     
-        private let characterOffsets: [String: CGSize] = [
+    private let characterOffsets: [String: CGSize] = [
         "nina":   CGSize(width: 0,  height: 10),
         "hopper": CGSize(width: -5,  height: 3),
         "jack":   CGSize(width: 0,  height: 8),
         "yousef": CGSize(width: 0,  height: 8),
-        "maya":   CGSize(width: 0, height: 13)
     ]
     
     var body: some View {
         ZStack {
+            
+            // الخلفية الأساسية لتوحيد اللون
             Color(red: 254/255, green: 244/255, blue: 217/255)
                 .ignoresSafeArea()
             
-            Image("main")
+            // صورة الخلفية – كاملة بلا أطراف
+            Image("main1")
                 .resizable()
                 .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
+                .clipped()   // يمنع ظهور أي حدود أو فراغ
+            
             
             VStack(spacing: 100) {
                 
                 Spacer().frame(height: 230)
                 
-               
+                // الصف الأول
                 HStack(spacing: 55) {
                     characterBox(name: characters[0])
                     characterBox(name: characters[2])
-                    characterBox(name: characters[1]) 
+                    characterBox(name: characters[1])
                 }
                 
-            
+                // الصف الثاني
                 HStack(spacing: 80) {
                     characterBox(name: characters[3])
                     characterBox(name: characters[4])
@@ -73,11 +78,10 @@ struct ProfilePage: View {
         let offset = characterOffsets[name] ?? CGSize(width: 0,  height: 0)
         
         return ZStack {
-         
+            
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white.opacity(0.05))
             
-          
             Image(name)
                 .resizable()
                 .scaledToFit()
@@ -86,7 +90,6 @@ struct ProfilePage: View {
                 .blur(radius: isUnlocked ? 0 : 4)
                 .opacity(isUnlocked ? 1.0 : 0.6)
             
-         
             if !isUnlocked {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.black.opacity(0.35))
@@ -97,14 +100,14 @@ struct ProfilePage: View {
             }
         }
         .overlay(
-          
             RoundedRectangle(cornerRadius: 12)
                 .stroke(
                     Color(
                         hex: isUnlocked
                         ? (selected == name ? "#A30000" : "#7B0909")
                         : "#7B0909"
-                    ).opacity(isUnlocked ? 1 : 0.4),
+                    )
+                    .opacity(isUnlocked ? 1 : 0.4),
                     lineWidth: (selected == name && isUnlocked) ? 12 : 10
                 )
         )
@@ -119,6 +122,5 @@ struct ProfilePage: View {
 }
 
 #Preview {
-   
     ProfilePage(unlockedCharacters: ["nina", "jack"])
 }
