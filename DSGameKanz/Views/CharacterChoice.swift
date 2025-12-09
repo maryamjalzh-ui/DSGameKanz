@@ -7,6 +7,9 @@ enum CharacterType: String {
 
 struct CharacterChoice: View {
     
+    @EnvironmentObject var progress: GameProgress
+    
+    // saved permanently in UserDefaults
     @AppStorage("selectedCharacter") private var selectedCharacterRaw: String = ""
     
     @State private var float = false
@@ -50,81 +53,56 @@ struct CharacterChoice: View {
                 VStack {
                     Spacer().frame(height: 80)
                     
-                    if selectedCharacter == nil {
-                        // ------------------------------------------------
-                        //   STATE 1: BOTH CHARACTERS VISIBLE (CHOOSING)
-                        // ------------------------------------------------
-                        HStack(alignment: .center, spacing: 160) {
+                    // ---------------------
+                    //       FEMALE
+                    // ---------------------
+                    VStack(spacing: 24) {
+                        
+                        Image("Female")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 180)
+                            .offset(y: float ? -8 : 8)
+                            .animation(
+                                .easeInOut(duration: 1.0)
+                                    .repeatForever(autoreverses: true),
+                                value: float
+                            )
+                        
+                        Button {
+                            selectedCharacterRaw = CharacterType.female.rawValue
                             
-                            // FEMALE
-                            VStack(spacing: 24) {
-                                Image("Female")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 180)
-                                    .offset(y: float ? -8 : 8)
-                                    .animation(
-                                        .easeInOut(duration: 1.0)
-                                            .repeatForever(autoreverses: true),
-                                        value: float
-                                    )
-                                
-                                Button {
-                                    selectedCharacterRaw = CharacterType.female.rawValue
-                                } label: {
-                                    Text("1")
-                                        .font(.custom("Farah", size: 36))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 40)
-                                        .padding(.vertical, 8)
-                                        .background(isFemaleSelected ? selectedColor : defaultColor)
-                                        .cornerRadius(20)
-                                }
-                            }
+                            // هنا نربط اختيار الأنثى بشخصية البروفايل المناسبة
+                            // عدّلي "nina" لو اسم أستك مختلف
+                            progress.selectMainCharacter("nina")
                             
-                            // MALE
-                            VStack(spacing: 73) {
-                                Image("Male")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 180)
-                                    .offset(y: float ? 8 : -8)
-                                    .animation(
-                                        .easeInOut(duration: 1.0)
-                                            .repeatForever(autoreverses: true),
-                                        value: float
-                                    )
-                                
-                                Button {
-                                    selectedCharacterRaw = CharacterType.male.rawValue
-                                } label: {
-                                    Text("2")
-                                        .font(.custom("Farah", size: 36))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 40)
-                                        .padding(.vertical, 8)
-                                        .background(isMaleSelected ? selectedColor : defaultColor)
-                                        .cornerRadius(20)
-                                }
-                            }
+                        } label: {
+                            Text("1")
+                                .font(.custom("Farah", size: 36))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 40)
+                                .padding(.vertical, 8)
+                                .background(
+                                    isFemaleSelected ? selectedColor : defaultColor
+                                )
+                                .cornerRadius(20)
                         }
                         
-                    } else {
-                        // ------------------------------------------------
-                        //   STATE 2: ONE CHARACTER + "ابدأ" BUTTON
-                        // ------------------------------------------------
-                        VStack(spacing: 32) {
+                        Button {
+                            selectedCharacterRaw = CharacterType.male.rawValue
                             
-                            // show selected character only
-                            Image(selectedCharacter == .female ? "Female" : "Male")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 180)
-                                .offset(y: float ? -8 : 8)
-                                .animation(
-                                    .easeInOut(duration: 1.0)
-                                        .repeatForever(autoreverses: true),
-                                    value: float
+                            // وهنا نربط اختيار الذكر بشخصية البروفايل
+                            // عدّلي "yousef" لو اسمك غير
+                            progress.selectMainCharacter("yousef")
+                            
+                        } label: {
+                            Text("2")
+                                .font(.custom("Farah", size: 36))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 40)
+                                .padding(.vertical, 8)
+                                .background(
+                                    isMaleSelected ? selectedColor : defaultColor
                                 )
                             
                             // "ابدأ" button → RoadMap
@@ -164,6 +142,7 @@ struct CharacterChoice: View {
 struct CharacterChoice_Previews: PreviewProvider {
     static var previews: some View {
         CharacterChoice()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

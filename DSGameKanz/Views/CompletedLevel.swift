@@ -11,23 +11,23 @@ import SwiftUI
 struct LevelCompletedView: View {
     var levelNumber: Int
     
+    @EnvironmentObject var progress: GameProgress
+    
     // MARK: - Character Logic
-    // This computed property returns the Name of the image for the specific level.
-    // If it returns nil, it means no character is unlocked (odd levels).
     var unlockedCharacterImageName: String? {
         switch levelNumber {
         case 2:
-            return "level 2-happy" // The girl in pink dress
+            return "level 2-happy"
         case 4:
-            return "level 4-happy" // The girl with the torch
+            return "level 4-happy"
         case 6:
-            return "level 6-happy" // The man with the shield
+            return "level 6-happy"
         case 8:
-            return "level 8-happy" // The boy in blue
+            return "level 8-happy"
         case 10:
-            return "level 10-happy" // The man with red hat and torch
+            return "level 10-happy"
         default:
-            return nil // Odd levels (1, 3, 5, 7, 9) return nothing
+            return nil
         }
     }
     
@@ -55,7 +55,6 @@ struct LevelCompletedView: View {
                         .foregroundColor(Color.CinnamonWood)
                         .fontWeight(.bold)
                     
-                    // Check if we have a character image for this level
                     if let imageName = unlockedCharacterImageName {
                         
                         Text("لقد حصلت على صديق جديد")
@@ -65,34 +64,25 @@ struct LevelCompletedView: View {
                         Image(imageName)
                             .resizable()
                             .scaledToFit()
-                            .frame(height: 180) // Adjust height to fit inside the paper
+                            .frame(height: 180)
                             .padding(.top, 5)
-                            // Adds a nice pop-in animation
                             .transition(.scale.combined(with: .opacity))
                     }
                 }
                 .padding(.bottom, 20)
             }
         }
+        .onAppear {
+            // نسجّل أن اللاعب خلّص مرحلة
+            progress.registerLevelCompleted()
+        }
     }
 }
 
-// MARK: - Previews
 struct LevelCompletedView_Previews: PreviewProvider {
     static var previews: some View {
-        // Preview: Level 2 (Should show Girl in Pink)
         LevelCompletedView(levelNumber: 2)
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
-            .previewDisplayName("Level 2 (Pink Girl)")
-        
-        // Preview: Level 6 (Should show Man with Shield)
-        LevelCompletedView(levelNumber: 6)
-            .previewInterfaceOrientation(.landscapeLeft)
-            .previewDisplayName("Level 6 (Shield Man)")
-
-        // Preview: Level 3 (Odd level - Text only, no character)
-        LevelCompletedView(levelNumber: 3)
-            .previewInterfaceOrientation(.landscapeLeft)
-            .previewDisplayName("Level 3 (No Character)")
     }
 }

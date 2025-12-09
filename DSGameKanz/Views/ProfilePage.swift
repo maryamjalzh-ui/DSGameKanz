@@ -9,78 +9,100 @@ import SwiftUI
 
 struct ProfilePage: View {
     
+    @EnvironmentObject var progress: GameProgress
+    
     @State private var selected: String? = nil
     
-    // الشخصيات الموجودة فعلياً (ترتيبها حسب التصميم)
     let characters = ["nina", "hopper", "jack", "yousef", "maya"]
     
-    // الشخصيات المفتوحة (من الماب أو منطق التقدّم)
-    let unlockedCharacters: Set<String>
-    
-    // مقاس كل شخصية (من القيم اللي حطيتيها)
     private let characterSizes: [String: CGSize] = [
         "nina":   CGSize(width: 130, height: 110),
         "hopper": CGSize(width: 140, height: 129),
         "jack":   CGSize(width: 100, height: 115),
-        "yousef": CGSize(width: 100,  height: 115),
-        "maya":   CGSize(width: 130,  height: 140)
+        "yousef": CGSize(width: 100, height: 115),
+        "maya":   CGSize(width: 130, height: 140)
     ]
     
-    // الإزاحة يمين/يسار + فوق/تحت لكل شخصية
     private let characterOffsets: [String: CGSize] = [
         "nina":   CGSize(width: 0,  height: 10),
-        "hopper": CGSize(width: -5,  height: 3),   // تقدرين تعدلينها لاحقاً
+        "hopper": CGSize(width: -5,  height: 3),
         "jack":   CGSize(width: 0,  height: 8),
         "yousef": CGSize(width: 0,  height: 8),
-        "maya":   CGSize(width: 0, height: 13)
+        "maya":   CGSize(width: 0,  height: 0)
     ]
     
     var body: some View {
-        ZStack {
-            Color(red: 254/255, green: 244/255, blue: 217/255)
-                .ignoresSafeArea()
-            
-            Image("main")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
-            VStack(spacing: 100) {
+        NavigationStack {
+            ZStack {
                 
-                Spacer().frame(height: 230)
+                Color(red: 254/255, green: 244/255, blue: 217/255)
+                    .ignoresSafeArea()
                 
-                // الصف الأول (مثلاً: نينا + هابر + جاك)
-                HStack(spacing: 55) {
-                    characterBox(name: characters[0])
-                    characterBox(name: characters[2]) // hopper
-                    characterBox(name: characters[1]) // jack
+                Image("main1")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+                    .clipped()
+                
+                VStack(spacing: 100) {
+                    
+                    Spacer().frame(height: 230)
+                    
+                    // الصف الأول
+                    HStack(spacing: 55) {
+                        profileCharacter(name: characters[0])
+                        profileCharacter(name: characters[2])
+                        profileCharacter(name: characters[1])
+                    }
+                    
+                    // الصف الثاني
+                    HStack(spacing: 80) {
+                        profileCharacter(name: characters[3])
+                        profileCharacter(name: characters[4])
+                    }
+                    
+                    Spacer()
                 }
-                
-                // الصف الثاني (يوسف + مايا)
-                HStack(spacing: 80) {
-                    characterBox(name: characters[3])
-                    characterBox(name: characters[4])
-                }
-                
-                Spacer()
             }
         }
     }
     
-    private func characterBox(name: String) -> some View {
+    /// يبني عنصر شخصية واحدة – ويقرّر إذا كانت مقفلة أو مفتوحة
+    @ViewBuilder
+    private func profileCharacter(name: String) -> some View {
+        let isUnlocked = progress.unlockedCharacters.contains(name)
+        let box = characterBox(name: name, isUnlocked: isUnlocked)
         
-        let isUnlocked = unlockedCharacters.contains(name)
+        if isUnlocked {
+            // حالياً لو ضغط اللاعب على الشخصية المفتوحة ما سوينا انتقال،
+            // تقدرين مستقبلاً تغيّرين الوجهة إلى RoadMap خاص بالشخصية.
+            Button {
+                selected = name
+                // هنا ممكن:
+                // navigate to RoadMap for this character
+            } label: {
+                box
+            }
+            .buttonStyle(.plain)
+            
+        } else {
+            box
+        }
+    }
+    
+    private func characterBox(name: String, isUnlocked: Bool) -> some View {
+        
         let boxSize: CGFloat = 140
         
         let size   = characterSizes[name]   ?? CGSize(width: 90, height: 90)
         let offset = characterOffsets[name] ?? CGSize(width: 0,  height: 0)
         
         return ZStack {
-            // خلفية المربع (ثابتة)
+            
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white.opacity(0.05))
             
-            // صورة الشخصية
             Image(name)
                 .resizable()
                 .scaledToFit()
@@ -89,7 +111,6 @@ struct ProfilePage: View {
                 .blur(radius: isUnlocked ? 0 : 4)
                 .opacity(isUnlocked ? 1.0 : 0.6)
             
-            // طبقة القفل
             if !isUnlocked {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.black.opacity(0.35))
@@ -100,28 +121,29 @@ struct ProfilePage: View {
             }
         }
         .overlay(
-            // إطار المربع (لون وسُمك يتغيّر حسب الاختيار)
             RoundedRectangle(cornerRadius: 12)
                 .stroke(
                     Color(
                         hex: isUnlocked
                         ? (selected == name ? "#A30000" : "#7B0909")
                         : "#7B0909"
-                    ).opacity(isUnlocked ? 1 : 0.4),
+                    )
+                    .opacity(isUnlocked ? 1 : 0.4),
                     lineWidth: (selected == name && isUnlocked) ? 12 : 10
                 )
         )
-        .frame(width: boxSize, height: boxSize)   // الكرت نفسه ثابت
+        .frame(width: boxSize, height: boxSize)
         .contentShape(Rectangle())
-        .onTapGesture {
-            if isUnlocked {
-                selected = name
-            }
-        }
     }
 }
 
-#Preview(traits: .landscapeLeft) {
-    // مثال: مفتوح نينا وهابر فقط
-    ProfilePage(unlockedCharacters: ["nina", "jack"])
+#Preview {
+    let progress = GameProgress()
+    progress.selectMainCharacter("nina")
+    // مثال: نفتح شخصيتين زيادة عشان يبان في الـ preview
+    progress.unlockedCharacters.insert("hopper")
+    progress.unlockedCharacters.insert("jack")
+    
+    return ProfilePage()
+        .environmentObject(progress)
 }
