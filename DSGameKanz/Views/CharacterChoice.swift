@@ -153,7 +153,7 @@ struct CharacterChoice: View {
             .navigationBarBackButtonHidden(true)
             .onAppear {
                 float = true
-                selectedCharacterRaw = ""   // reset on entering screen
+                selectedCharacterRaw = ""   // reset on enteringkk screen
             }
         }
     }
