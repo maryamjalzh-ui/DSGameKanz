@@ -2,19 +2,23 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var showSplash = true
-
+    @StateObject private var progress = GameProgress()
+    
     var body: some View {
-        Group {
-            if showSplash {
-                SplashPage {
-                    withAnimation {
-                        showSplash = false      // <-- بعد السبلش يروح للستارتنق
+        NavigationStack {
+            Group {
+                if showSplash {
+                    SplashPage {
+                        withAnimation {
+                            showSplash = false   // بعد السبلش يروح للـ StartingPage
+                        }
                     }
+                } else {
+                    StartingPage()
                 }
-            } else {
-                StartingPage()
             }
         }
+        .environmentObject(progress)
     }
 }
 

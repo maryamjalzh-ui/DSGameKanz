@@ -8,11 +8,11 @@
 import SwiftUI
 
 @main
-struct DSGameKanzApp: App {
+struct YourAppNameApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                
+            ContentView()   // ← MUST be ContentView, not StartingPage, not CharacterChoice
         }
     }
 }
+
