@@ -11,8 +11,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5C2B32C22ECF3B520071370D /* DSGameKanz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = DSGameKanz.app; path = "/Users/lujainalrugabi/Desktop/DSGameKanz/build/Debug-iphoneos/DSGameKanz.app"; sourceTree = "<absolute>"; };
 		C617843E2EDF08A900D81372 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		E4B3E2A12EE71C840054797A /* DSGameKanz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DSGameKanz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -39,6 +39,7 @@
 			children = (
 				C617843D2EDF089400D81372 /* Models */,
 				5C2B32C42ECF3B520071370D /* DSGameKanz */,
+				E4B3E2A12EE71C840054797A /* DSGameKanz.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,7 +73,7 @@
 			packageProductDependencies = (
 			);
 			productName = DSGameKanz;
-			productReference = 5C2B32C22ECF3B520071370D /* DSGameKanz.app */;
+			productReference = E4B3E2A12EE71C840054797A /* DSGameKanz.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
