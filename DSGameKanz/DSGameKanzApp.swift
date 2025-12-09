@@ -8,11 +8,14 @@
 import SwiftUI
 
 @main
-struct DSGameKanzApp: App {
+struct YourGameApp: App {
+    
+    @StateObject private var progress = GameProgress()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                
+            StartingPage()
+                .environmentObject(progress)
         }
     }
 }

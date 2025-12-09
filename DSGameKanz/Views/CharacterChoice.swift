@@ -7,6 +7,8 @@ enum CharacterType: String {
 
 struct CharacterChoice: View {
     
+    @EnvironmentObject var progress: GameProgress
+    
     // saved permanently in UserDefaults
     @AppStorage("selectedCharacter") private var selectedCharacterRaw: String = ""
     
@@ -65,6 +67,11 @@ struct CharacterChoice: View {
                         
                         Button {
                             selectedCharacterRaw = CharacterType.female.rawValue
+                            
+                            // هنا نربط اختيار الأنثى بشخصية البروفايل المناسبة
+                            // عدّلي "nina" لو اسم أستك مختلف
+                            progress.selectMainCharacter("nina")
+                            
                         } label: {
                             Text("1")
                                 .font(.custom("Farah", size: 36))
@@ -95,6 +102,11 @@ struct CharacterChoice: View {
                         
                         Button {
                             selectedCharacterRaw = CharacterType.male.rawValue
+                            
+                            // وهنا نربط اختيار الذكر بشخصية البروفايل
+                            // عدّلي "yousef" لو اسمك غير
+                            progress.selectMainCharacter("yousef")
+                            
                         } label: {
                             Text("2")
                                 .font(.custom("Farah", size: 36))
@@ -123,6 +135,7 @@ struct CharacterChoice: View {
 struct CharacterChoice_Previews: PreviewProvider {
     static var previews: some View {
         CharacterChoice()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }
