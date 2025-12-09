@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5C2B32C22ECF3B520071370D /* DSGameKanz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = DSGameKanz.app; path = "/Users/lujainalrugabi/Desktop/DSGameKanz/build/Debug-iphoneos/DSGameKanz.app"; sourceTree = "<absolute>"; };
+		5C2B32C22ECF3B520071370D /* DSGameKanz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DSGameKanz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C617843E2EDF08A900D81372 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -39,7 +39,16 @@
 			children = (
 				C617843D2EDF089400D81372 /* Models */,
 				5C2B32C42ECF3B520071370D /* DSGameKanz */,
+				5C2B32C32ECF3B520071370D /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		5C2B32C32ECF3B520071370D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5C2B32C22ECF3B520071370D /* DSGameKanz.app */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		C617843D2EDF089400D81372 /* Models */ = {
@@ -100,7 +109,7 @@
 			mainGroup = 5C2B32B92ECF3B520071370D;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 5C2B32B92ECF3B520071370D;
+			productRefGroup = 5C2B32C32ECF3B520071370D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -261,7 +270,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9QQFVHD956;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -273,7 +281,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TWQ.DS.GameKanz;
+				PRODUCT_BUNDLE_IDENTIFIER = TWQ.DSGameKanz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -292,7 +300,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9QQFVHD956;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -304,7 +311,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TWQ.DS.GameKanz;
+				PRODUCT_BUNDLE_IDENTIFIER = TWQ.DSGameKanz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
