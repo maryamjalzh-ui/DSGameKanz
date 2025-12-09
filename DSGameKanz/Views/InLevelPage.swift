@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - 1. هياكل البيانات ومولّد الأنماط
+// MARK: - 1. هياكل البيانات ومولّد الأنماط (لم تتغير)
 struct DotPattern {
     let number: Int
     let columns: [Int]
@@ -46,7 +46,7 @@ struct DotPatternGenerator {
     }
 }
 
-// MARK: - 2. عرض النقاط كنمط
+// MARK: - 2. عرض النقاط كنمط (لم تتغير)
 struct DotPatternView: View {
     let pattern: DotPattern
     
@@ -70,7 +70,7 @@ struct DotPatternView: View {
     }
 }
 
-// MARK: - شريط التقدم البكسلي
+// MARK: - شريط التقدم البكسلي (لم يتغير)
 struct PixelProgressBar: View {
     let total: Int
     let filled: Int
@@ -106,7 +106,7 @@ struct PixelProgressBar: View {
     }
 }
 
-// MARK: - الزر
+// MARK: - الزر (لم يتغير)
 struct NumberChoiceButton: View {
     let number: Int
     let action: () -> Void
@@ -138,7 +138,7 @@ struct NumberChoiceButton: View {
     }
 }
 
-// MARK: - الكنفيتي (Confetti)
+// MARK: - الكنفيتي (Confetti) (لم يتغير)
 struct ConfettiView: View {
     let particles = ["🎉", "✨", "🥳", "🌟", "🎈"]
     var body: some View {
@@ -179,7 +179,7 @@ struct ConfettiAnimationModifier: ViewModifier {
     }
 }
 
-// 🔑 واجهة رسالة اكتمال المستوى الجديدة
+// 🔑 واجهة رسالة اكتمال المستوى الجديدة (لم تتغير)
 struct LevelCompletedSheet: View {
     // هذه الدالة سيتم استدعاؤها عند ضغط زر الانتقال
     var onDismiss: () -> Void
@@ -207,10 +207,9 @@ struct LevelCompletedSheet: View {
 }
 
 
-// MARK: - 3. صفحة اللعبة الرئيسية
+// MARK: - 3. صفحة اللعبة الرئيسية (تم التعديل)
 struct InLevelPage: View {
     
-    // 🔑 1. دالة للربط بالخارج لتنفيذ العودة إلى RoadMapPage
     var onLevelCompleted: (() -> Void)? = nil
     
     @State private var currentPattern: DotPattern = DotPatternGenerator.randomPattern(for: 5)
@@ -250,46 +249,61 @@ struct InLevelPage: View {
                     .padding(.leading, 70)
             }
             
-            // محتوى اللعبة فوق الخريطة
+            // محتوى اللعبة فوق الخريطة (الآن في الوسط)
             VStack {
                 Spacer()
                 
-                VStack (spacing: 45) {
-                    Text(" كم عدد النقاط؟")
-                        .font(.custom("Farah", size: 50))
-                        .shadow(radius: 10)
-                        .foregroundColor(.CinnamonWood)
-                        .padding(.top, 50)
-        
+                // 1. بطاقة السؤال بالكامل (بما في ذلك الشخصية في الأسفل)
+                ZStack(alignment: .bottomTrailing) { // استخدام ZStack لوضع الشخصية فوق/داخل البطاقة
                     
-                    DotPatternView(pattern: currentPattern)
-                        .padding(.vertical, 10)
-                    
-                    HStack(spacing: 15) {
-                        ForEach(options, id: \.self) { option in
-                            NumberChoiceButton(
-                                number: option,
-                                action: { handleAnswer(option) },
-                                selectedOption: $selectedOption,
-                                isCorrectAnswer: currentPattern.number,
-                                isInteractionDisabled: isInteractionDisabled
-                            )
+                    VStack (spacing: 45) {
+                        Text(" كم عدد النقاط؟")
+                            .font(.custom("Farah", size: 50))
+                            .shadow(radius: 10)
+                            .foregroundColor(.CinnamonWood)
+                            .padding(.top, 50)
+                        
+                        DotPatternView(pattern: currentPattern)
+                            .padding(.vertical, 10)
+                        
+                        HStack(spacing: 15) {
+                            ForEach(options, id: \.self) { option in
+                                NumberChoiceButton(
+                                    number: option,
+                                    action: { handleAnswer(option) },
+                                    selectedOption: $selectedOption,
+                                    isCorrectAnswer: currentPattern.number,
+                                    isInteractionDisabled: isInteractionDisabled
+                                )
+                            }
                         }
+                        .padding(.horizontal, 40)
+                        .padding(.bottom, 60)
                     }
-                    .padding(.horizontal, 40)
-                    .padding(.bottom, 60)
-                }
-                .background(
-                    RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.PacificBlue.opacity(0.25))
-                    .shadow(radius: 10)
-                    .overlay(
+                    .background(
                         RoundedRectangle(cornerRadius: 25)
-                            .stroke(Color.Fern)
-                        )
+                            .fill(Color.PacificBlue.opacity(0.25))
+                            .shadow(radius: 10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            )
                     )
-                Spacer()
+                    .frame(maxWidth: 600) // تحديد عرض البطاقة لتبقى مركزة
+                    
+                    // 2. الشخصية التفاعلية في أسفل يمين البطاقة
+                    Image(isInteractionDisabled && isAnswerCorrect ? "happy" : "thinking")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 140, height: 140) // تصغير الحجم
+                        .shadow(radius: 5)
+                        // وضعها في أسفل اليمين (أو اليسار حسب تفضيلك)
+                        .offset(x: -20, y: 50) // إزاحة جزئية للخارج
+                    
+                }
+                .padding(.horizontal, 40)
                 
+                Spacer()
             }
             
             // عرض الكنفيتي كطبقة علوية
@@ -325,7 +339,7 @@ struct InLevelPage: View {
         }
     }
     
-    // MARK: - منطق اللعبة
+    // MARK: - منطق اللعبة (لم يتغير)
     private func generateNewQuestion(isInitial: Bool = false) {
         let (newPattern, newOptions) = DotPatternGenerator.generateQuestion()
         currentPattern = newPattern
@@ -376,7 +390,7 @@ struct InLevelPage: View {
     }
 }
 
-// MARK: - المعاينة
+// MARK: - المعاينة (لم تتغير)
 struct InLevelPage_Previews: PreviewProvider {
     static var previews: some View {
         InLevelPage()
