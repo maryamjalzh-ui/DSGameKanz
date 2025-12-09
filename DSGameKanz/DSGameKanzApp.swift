@@ -8,14 +8,11 @@
 import SwiftUI
 
 @main
-struct YourGameApp: App {
-    
-    @StateObject private var progress = GameProgress()
-    
+struct YourAppNameApp: App {
     var body: some Scene {
         WindowGroup {
-            StartingPage()
-                .environmentObject(progress)
+            ContentView()   // ← MUST be ContentView, not StartingPage, not CharacterChoice
         }
     }
 }
+

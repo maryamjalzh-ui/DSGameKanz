@@ -10,7 +10,7 @@ struct ContentView: View {
                 if showSplash {
                     SplashPage {
                         withAnimation {
-                            showSplash = false      // بعد السبلش يروح للـ StartingPage
+                            showSplash = false   // بعد السبلش يروح للـ StartingPage
                         }
                     }
                 } else {
