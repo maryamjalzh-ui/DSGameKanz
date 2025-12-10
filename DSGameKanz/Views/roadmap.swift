@@ -1,11 +1,11 @@
-//  RoadMap.swift
+//  //  RoadMap.swift
 //  DSGameKanz
 //
 //  Created by Lujain Alrugabi on 01/12/2025.
 //
+
 import SwiftUI
 
-// موديل لليفل على الخريطة
 struct MapLevel: Identifiable {
     let id: Int
     let xRatio: CGFloat
@@ -15,57 +15,60 @@ struct MapLevel: Identifiable {
 
 struct RoadMap: View {
 
-    // الليفلات مع الإحداثيات الصحيحة
     private let levels: [MapLevel] = [
-        MapLevel(id: 0, xRatio: 0.11, yRatio: 0.26, isUnlocked: true),
-        MapLevel(id: 1, xRatio: 0.19, yRatio: 0.50, isUnlocked: false),
-        MapLevel(id: 2, xRatio: 0.46,  yRatio: 0.34, isUnlocked: false),
-        MapLevel(id: 3, xRatio: 0.63,  yRatio: 0.42, isUnlocked: false),
-        MapLevel(id: 4, xRatio: 0.33,  yRatio: 0.77, isUnlocked: false),
-        MapLevel(id: 5, xRatio: 0.50,  yRatio: 0.62, isUnlocked: false),
-        MapLevel(id: 6, xRatio: 0.80,  yRatio: 0.65, isUnlocked: false),
-        MapLevel(id: 7, xRatio: 0.87,  yRatio: 0.84, isUnlocked: false)
+        MapLevel(id: 1, xRatio: 0.08, yRatio: 0.24, isUnlocked: true),
+        MapLevel(id: 2, xRatio: 0.36,  yRatio: 0.44, isUnlocked: false),
+        MapLevel(id: 3, xRatio: 0.13, yRatio: 0.60, isUnlocked: false),
+        MapLevel(id: 4, xRatio: 0.03,  yRatio: 0.79, isUnlocked: false),
+        MapLevel(id: 5, xRatio: 0.17,  yRatio: 0.91, isUnlocked: false),
+        MapLevel(id: 6, xRatio: 0.38,  yRatio: 0.88, isUnlocked: false),
+        MapLevel(id: 7, xRatio: 0.49,  yRatio: 0.68, isUnlocked: false),
+        MapLevel(id: 8, xRatio: 0.66,  yRatio: 0.35, isUnlocked: false),
+        MapLevel(id: 9, xRatio: 0.77,  yRatio: 0.53, isUnlocked: false),
+        MapLevel(id: 10, xRatio: 0.81,  yRatio: 0.86, isUnlocked: false),
     ]
 
     var body: some View {
         GeometryReader { geo in
             ZStack {
 
-                // صورة الخريطة نفسها (نفس مقاس BluredMap)
-                Image("RoadMap")
+                // الخلفيةbackground
+                Image("RoadMapp")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
+                    .offset(x: 0, y: -20)
+                    
 
-                // نص بداية رحلتك (أعلى اليسار)
+                // نص بداية رحلتك "Start your Journey" text
                 VStack {
                     HStack {
                         Text("بداية رحلتك")
-                            .font(.custom("Farah", size: 40))
+                            .font(.custom("Farah", size: 55))
                             .foregroundColor(.white)
                             .shadow(radius: 4)
-                            .padding(.leading, -90)
-                            .padding(125)
+                            .padding(.leading, 40)
+                            .padding(.top, 50)
                         Spacer()
                     }
                     Spacer()
                 }
 
-                // نص النهاية عند الكنز (أسفل اليمين)
+                // نص لقد وصلت "You Arrived" text
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
                         Text("لقد وصلت!")
-                            .font(.custom("Farah", size: 40))
+                            .font(.custom("Farah", size: 55))
                             .foregroundColor(.white)
                             .shadow(radius: 4)
-                            .padding(.trailing, 130)
-                            .padding(.bottom, 150)
+                            .padding(.trailing, 120)
+                            .padding(.bottom, 80)
                     }
                 }
 
-                // الليفلات فوق الدوائر الحمراء تماماً
+                // الليفلات Levels
                 ForEach(levels) { level in
                     if level.isUnlocked {
                         NavigationLink {
@@ -85,19 +88,20 @@ struct RoadMap: View {
                             )
                     }
                 }
+
             }
         }
     }
 
-    // شكل دائرة الليفل
+    // شكل دائرة الليفل Level circle structure
     private func levelCircle(unlocked: Bool) -> some View {
         Circle()
-            .fill(Color.white)
-            .frame(width: 50, height: 55)
+            .fill(Color.gray)
+            .frame(width: 86, height: 86)
             .overlay(
                 Circle()
                     .stroke(
-                        unlocked ? Color.yellow.opacity(0.9)
+                        unlocked ? Color.black.opacity(0.9)
                                  : Color.white.opacity(0.4),
                         lineWidth: 4
                     )
