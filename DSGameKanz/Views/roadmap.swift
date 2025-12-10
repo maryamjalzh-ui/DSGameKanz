@@ -16,15 +16,15 @@ struct MapLevel: Identifiable {
 struct RoadMap: View {
 
     private let levels: [MapLevel] = [
-        MapLevel(id: 1, xRatio: 0.08, yRatio: 0.24, isUnlocked: true),
-        MapLevel(id: 2, xRatio: 0.36,  yRatio: 0.44, isUnlocked: false),
+        MapLevel(id: 1, xRatio: 0.09, yRatio: 0.20, isUnlocked: true),
+        MapLevel(id: 2, xRatio: 0.36,  yRatio: 0.40, isUnlocked: false),
         MapLevel(id: 3, xRatio: 0.13, yRatio: 0.60, isUnlocked: false),
         MapLevel(id: 4, xRatio: 0.03,  yRatio: 0.79, isUnlocked: false),
         MapLevel(id: 5, xRatio: 0.17,  yRatio: 0.91, isUnlocked: false),
-        MapLevel(id: 6, xRatio: 0.38,  yRatio: 0.88, isUnlocked: false),
-        MapLevel(id: 7, xRatio: 0.49,  yRatio: 0.68, isUnlocked: false),
-        MapLevel(id: 8, xRatio: 0.66,  yRatio: 0.35, isUnlocked: false),
-        MapLevel(id: 9, xRatio: 0.77,  yRatio: 0.53, isUnlocked: false),
+        MapLevel(id: 6, xRatio: 0.38,  yRatio: 0.85, isUnlocked: false),
+        MapLevel(id: 7, xRatio: 0.49,  yRatio: 0.66, isUnlocked: false),
+        MapLevel(id: 8, xRatio: 0.65,  yRatio: 0.33, isUnlocked: false),
+        MapLevel(id: 9, xRatio: 0.76,  yRatio: 0.52, isUnlocked: false),
         MapLevel(id: 10, xRatio: 0.81,  yRatio: 0.86, isUnlocked: false),
     ]
 
@@ -37,7 +37,10 @@ struct RoadMap: View {
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
-                    .offset(x: 0, y: -20)
+                    .frame(width: geo.size.width, height: geo.size.height, alignment: .center)
+                    
+                
+                
                     
 
                 // نص بداية رحلتك "Start your Journey" text
@@ -64,7 +67,7 @@ struct RoadMap: View {
                             .foregroundColor(.white)
                             .shadow(radius: 4)
                             .padding(.trailing, 120)
-                            .padding(.bottom, 80)
+                            .padding(.bottom, 20)
                     }
                 }
 
@@ -96,7 +99,7 @@ struct RoadMap: View {
     // شكل دائرة الليفل Level circle structure
     private func levelCircle(unlocked: Bool) -> some View {
         Circle()
-            .fill(Color.gray)
+            .fill(Color.white)
             .frame(width: 86, height: 86)
             .overlay(
                 Circle()
