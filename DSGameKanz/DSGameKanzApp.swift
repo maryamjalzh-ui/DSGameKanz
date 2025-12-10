@@ -8,6 +8,16 @@
 import SwiftUI
 
 @main
+struct DSGameKanzApp: App {
+    @StateObject var progress = GameProgress() // إنشاء الكائن هنا مرة واحدة
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(progress) // تمرير الكائن
+        }
+    }
+}
 struct YourAppNameApp: App {
     var body: some Scene {
         WindowGroup {

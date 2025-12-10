@@ -1,11 +1,12 @@
 //
-//  ProfilePage.swift
-//  DSGameKanz
-//
-//  Created by Abeer Alshabrami on 12/1/25.
+// ProfilePage.swift
+// الكود الأصلي مع تعديل المعاينة (Preview)
 //
 
 import SwiftUI
+
+// يجب أن يكون لديك struct GameProgress ليعمل هذا الكود
+// (سأفترض أنه موجود)
 
 struct ProfilePage: View {
     
@@ -75,12 +76,8 @@ struct ProfilePage: View {
         let box = characterBox(name: name, isUnlocked: isUnlocked)
         
         if isUnlocked {
-            // حالياً لو ضغط اللاعب على الشخصية المفتوحة ما سوينا انتقال،
-            // تقدرين مستقبلاً تغيّرين الوجهة إلى RoadMap خاص بالشخصية.
             Button {
                 selected = name
-                // هنا ممكن:
-                // navigate to RoadMap for this character
             } label: {
                 box
             }
@@ -95,7 +92,7 @@ struct ProfilePage: View {
         
         let boxSize: CGFloat = 140
         
-        let size   = characterSizes[name]   ?? CGSize(width: 90, height: 90)
+        let size   = characterSizes[name]  ?? CGSize(width: 90, height: 90)
         let offset = characterOffsets[name] ?? CGSize(width: 0,  height: 0)
         
         return ZStack {
@@ -124,6 +121,7 @@ struct ProfilePage: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(
                     Color(
+                        // يفترض أن لديك extension لـ Color.init(hex:)
                         hex: isUnlocked
                         ? (selected == name ? "#A30000" : "#7B0909")
                         : "#7B0909"
@@ -137,13 +135,16 @@ struct ProfilePage: View {
     }
 }
 
+// 🛑 التعديل لتشغيل المعاينة (Preview) بنجاح
 #Preview {
+    // يجب افتراض وجود struct GameProgress
     let progress = GameProgress()
     progress.selectMainCharacter("nina")
-    // مثال: نفتح شخصيتين زيادة عشان يبان في الـ preview
     progress.unlockedCharacters.insert("hopper")
     progress.unlockedCharacters.insert("jack")
     
-    return ProfilePage()
-        .environmentObject(progress)
+    return NavigationStack {
+        ProfilePage()
+            .environmentObject(progress)
+    }
 }
