@@ -5,17 +5,21 @@ struct ContentView: View {
     @StateObject private var progress = GameProgress()
     
     var body: some View {
-        NavigationStack {
-            Group {
-                if showSplash {
-                    SplashPage {
-                        withAnimation {
-                            showSplash = false   // بعد السبلش يروح للـ StartingPage
-                        }
+        ZStack {
+            // Your real app
+            NavigationStack {
+                StartingPage()
+            }
+            .opacity(showSplash ? 0 : 1)   // hide app while splash is showing
+            
+            // Splash on top
+            if showSplash {
+                SplashPage {
+                    withAnimation(.easeOut(duration: 0.4)) {
+                        showSplash = false   // بعد السبلش يروح للـ StartingPage
                     }
-                } else {
-                    StartingPage()
                 }
+                .transition(.opacity)
             }
         }
         .environmentObject(progress)
