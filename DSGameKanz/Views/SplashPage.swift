@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SplashPage: View {
     @State private var animate = false
-    let onFinished: () -> Void          // <-- NEW
+    let onFinished: () -> Void
 
     var body: some View {
         ZStack {
@@ -12,13 +12,16 @@ struct SplashPage: View {
                 .resizable()
                 .scaledToFit()
                 .padding(110)
-                .scaleEffect(animate ? 1 : 0.8)
+                .scaleEffect(animate ? 1.0 : 0.7)   // smoother start
                 .opacity(animate ? 1 : 0)
-                .animation(.easeOut(duration: 1.0), value: animate)
         }
         .onAppear {
-            animate = true
-            // wait then call onFinished
+            // start animation
+            withAnimation(.easeOut(duration: 1.0)) {
+                animate = true
+            }
+            
+            // wait then go to next page
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                 onFinished()
             }
