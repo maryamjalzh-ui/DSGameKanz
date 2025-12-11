@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - مولّد الأنماط للمستوى الأول (سهل)
-struct DotPatternGeneratorLevel1 {
+// MARK: - مولّد الأنماط للمستوى الثاني (نفس صعوبة ليفل ١)
+struct DotPatternGeneratorLevel2 {
     static let templates: [Int: [[Int]]] = [
         3: [[3], [2, 1]],
         4: [[4], [2, 2]],
@@ -41,58 +41,92 @@ struct DotPatternGeneratorLevel1 {
     }
 }
 
-// MARK: - صفحة المستوى الأول (اسمها الصحيح الآن: InLevelPage)
-struct InLevelPage: View {
+// MARK: - عرض الأشكال بدل النقاط للمستوى الثاني
+struct DotPatternViewLevel2: View {
     
-    @State private var currentPattern: DotPattern = DotPatternGeneratorLevel1.randomPattern(for: 5)
+    let pattern: DotPattern
+    let symbol: String   // ← رمز ثابت لكل سؤال
+    
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 24) {
+
+            ForEach(pattern.columns.indices, id: \.self) { colIndex in
+                let count = pattern.columns[colIndex]
+
+                VStack(spacing: 8) {
+                    ForEach(0..<count, id: \.self) { _ in
+
+                        Text(symbol)
+                            .font(.system(size: 40))
+                            .shadow(radius: 2)
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(minHeight: 150)
+    }
+}
+
+// MARK: - صفحة المستوى الثاني كاملة
+struct Level2Page: View {
+    
+    // رموز Treasure Hunt
+    let treasureSymbols = ["🗺️", "🪵", "💎", "🦜", "🪙", "🏝️"]
+
+    @State private var currentPattern: DotPattern = DotPatternGeneratorLevel2.randomPattern(for: 5)
     @State private var options: [Int] = []
-    
+
+    @State private var currentSymbol: String = "⛏️"   // ← رمز السؤال الحالي
+
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var isAnswerCorrect = false
-    
     @State private var isInteractionDisabled = false
     @State private var selectedOption: Int?
-    
+
     @State private var completedQuestions = 0
     let totalQuestionsInLevel = 5
-    
+
     @State private var showConfetti = false
-    
+
     var body: some View {
         NavigationView {
             ZStack {
+
                 Image("BluredMap")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
-                
+
                 ZStack(alignment: .topLeading) {
                     Image("HandsOnMap")
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity)
                         .padding()
-                    
+
                     PixelProgressBar(total: totalQuestionsInLevel, filled: completedQuestions)
                         .padding(60)
                         .padding(.leading, 70)
                 }
-                
+
                 VStack {
                     Spacer()
-                    
+
                     ZStack(alignment: .bottomTrailing) {
                         VStack (spacing: 45) {
-                            Text("كم عدد النقاط؟")
+
+                            Text("كم عدد الأشكال؟")
                                 .font(.custom("Farah", size: 50))
                                 .shadow(radius: 10)
                                 .foregroundColor(.CinnamonWood)
                                 .padding(.top, 50)
-                            
-                            DotPatternView(pattern: currentPattern)
+
+                            // ← عرض الأشكال
+                            DotPatternViewLevel2(pattern: currentPattern, symbol: currentSymbol)
                                 .padding(.vertical, 10)
-                            
+
                             HStack(spacing: 15) {
                                 ForEach(options, id: \.self) { option in
                                     NumberChoiceButton(
@@ -117,7 +151,7 @@ struct InLevelPage: View {
                                 )
                         )
                         .frame(maxWidth: 600)
-                        
+
                         Image(isInteractionDisabled && isAnswerCorrect ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -126,15 +160,16 @@ struct InLevelPage: View {
                             .offset(x: -20, y: 50)
                     }
                     .padding(.horizontal, 40)
-                    
+
                     Spacer()
                 }
-                
+
                 if showConfetti {
                     ConfettiView()
                         .zIndex(1)
                         .allowsHitTesting(false)
                 }
+
             }
             .onAppear { generateNewQuestion() }
             .disabled(isInteractionDisabled)
@@ -151,39 +186,49 @@ struct InLevelPage: View {
         }
         .navigationViewStyle(.stack)
     }
-    
+
     // MARK: - منطق اللعبة
     private func generateNewQuestion() {
-        let (newPattern, newOptions) = DotPatternGeneratorLevel1.generateQuestion()
+        let (newPattern, newOptions) = DotPatternGeneratorLevel2.generateQuestion()
+
         currentPattern = newPattern
         options = newOptions
+
+        // ← اختيار رمز واحد عشوائي لكل سؤال (حسب اختيارك A)
+        currentSymbol = treasureSymbols.randomElement() ?? "⛏️"
+
         isInteractionDisabled = false
         selectedOption = nil
         showingAlert = false
     }
-    
+
     private func handleAnswer(_ answer: Int) {
         isInteractionDisabled = true
         selectedOption = answer
-        
+
         if answer == currentPattern.number {
+
             isAnswerCorrect = true
-            withAnimation { completedQuestions += 1 }
-            
+
+            withAnimation {
+                completedQuestions += 1
+            }
+
             showConfetti = true
             let duration = 2.5
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 }
             }
-            
+
         } else {
+
             isAnswerCorrect = false
             alertMessage = "للأسف الإجابة خاطئة"
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 showingAlert = true
             }
@@ -191,10 +236,10 @@ struct InLevelPage: View {
     }
 }
 
-// MARK: - المعاينة الصحيحة
-struct InLevelPage_Previews: PreviewProvider {
+// MARK: - Preview
+struct Level2Page_Previews: PreviewProvider {
     static var previews: some View {
-        InLevelPage()
+        Level2Page()
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

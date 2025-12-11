@@ -13,7 +13,7 @@ struct DSGameKanzApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Level3Page()
                 .environmentObject(progress) // تمرير الكائن
         }
     }
