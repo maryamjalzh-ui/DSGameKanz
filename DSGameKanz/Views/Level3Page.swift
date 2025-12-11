@@ -52,7 +52,7 @@ struct Level3Page: View {
                         // الإطار الأخضر الكامل (نفس ليفل 1 و2)
                         VStack(spacing: 10) {
                             
-                            Text("اسحب العمود إلى الإجابة الصحيحة")
+                            Text("اسحب الاشكال إلى عددها الصحيح")
                                 .font(.custom("Farah", size: 50))
                                 .foregroundColor(.CinnamonWood)
                                 .shadow(radius: 10)
