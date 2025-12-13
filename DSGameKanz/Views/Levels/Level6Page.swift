@@ -9,8 +9,10 @@ import SwiftUI
 
 struct Level6Page: View {
     
-    // MARK: - State
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
     
+    // MARK: - State
     @State private var totalCount: Int = 0
     @State private var hiddenCount: Int = 0
     @State private var options: [Int] = []
@@ -24,11 +26,22 @@ struct Level6Page: View {
     @State private var showConfetti = false
     @State private var showAlert = false
     
-    // MARK: - UI
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
     
+    // MARK: - UI
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 6)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 // الخلفية
                 Image("BluredMap")
@@ -76,7 +89,6 @@ struct Level6Page: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 75, height: 75)
-                                        // ✅ التظليل Overlay فقط
                                         .overlay(
                                             Group {
                                                 if index >= visibleCount {
@@ -149,7 +161,6 @@ struct Level6Page: View {
     // MARK: - Logic
     
     private func generateNewQuestion() {
-        
         let total = Int.random(in: 3...6)
         let hidden = Int.random(in: 1..<(total))
         
@@ -168,7 +179,6 @@ struct Level6Page: View {
         isCorrect = false
     }
     
-    
     private func handleAnswer(_ answer: Int) {
         selectedOption = answer
         
@@ -181,13 +191,15 @@ struct Level6Page: View {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
+                } else {
+                    // ✅ (4) نهاية الليفل
+                    goToCompletedLevel = true
                 }
             }
         } else {
             showAlert = true
         }
     }
-    
     
     private func buttonColor(for option: Int) -> Color {
         guard let selected = selectedOption else {
@@ -206,11 +218,11 @@ struct Level6Page: View {
     }
 }
 
-
 // MARK: - Preview
 struct Level6Page_Previews: PreviewProvider {
     static var previews: some View {
         Level6Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

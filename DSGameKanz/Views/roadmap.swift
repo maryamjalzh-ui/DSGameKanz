@@ -1,14 +1,4 @@
-//
-// RoadMap.swift
-// الكود النهائي: بدون إعادة تعريف InLevelPage
-//
-
 import SwiftUI
-
-// **********************************************
-// تم حذف تعريف struct InLevelPage لتجنب خطأ Invalid redeclaration
-// لأنها موجودة بالفعل في مشروعك.
-// **********************************************
 
 struct MapLevel: Identifiable {
     let id: Int
@@ -17,52 +7,55 @@ struct MapLevel: Identifiable {
     let isUnlocked: Bool
 }
 
+
 struct RoadMap: View {
 
-    private let levels: [MapLevel] = [
-        MapLevel(id: 1, xRatio: 0.09, yRatio: 0.20, isUnlocked: true),
-        MapLevel(id: 2, xRatio: 0.36, yRatio: 0.40, isUnlocked: false),
-        MapLevel(id: 3, xRatio: 0.13, yRatio: 0.60, isUnlocked: false),
-        MapLevel(id: 4, xRatio: 0.03, yRatio: 0.79, isUnlocked: false),
-        MapLevel(id: 5, xRatio: 0.17, yRatio: 0.91, isUnlocked: false),
-        MapLevel(id: 6, xRatio: 0.38, yRatio: 0.85, isUnlocked: false),
-        MapLevel(id: 7, xRatio: 0.49, yRatio: 0.66, isUnlocked: false),
-        MapLevel(id: 8, xRatio: 0.65, yRatio: 0.33, isUnlocked: false),
-        MapLevel(id: 9, xRatio: 0.76, yRatio: 0.52, isUnlocked: false),
-        MapLevel(id: 10, xRatio: 0.81, yRatio: 0.86, isUnlocked: false),
-    ]
+    @EnvironmentObject var progress: GameProgress
+
+    private var levels: [MapLevel] {
+        [
+            MapLevel(id: 1, xRatio: 0.09, yRatio: 0.20, isUnlocked: true),
+            MapLevel(id: 2, xRatio: 0.36, yRatio: 0.40, isUnlocked: progress.completedLevels >= 1),
+            MapLevel(id: 3, xRatio: 0.13, yRatio: 0.60, isUnlocked: progress.completedLevels >= 2),
+            MapLevel(id: 4, xRatio: 0.03, yRatio: 0.79, isUnlocked: progress.completedLevels >= 3),
+            MapLevel(id: 5, xRatio: 0.17, yRatio: 0.91, isUnlocked: progress.completedLevels >= 4),
+            MapLevel(id: 6, xRatio: 0.38, yRatio: 0.85, isUnlocked: progress.completedLevels >= 5),
+            MapLevel(id: 7, xRatio: 0.49, yRatio: 0.66, isUnlocked: progress.completedLevels >= 6),
+            MapLevel(id: 8, xRatio: 0.65, yRatio: 0.33, isUnlocked: progress.completedLevels >= 7),
+            MapLevel(id: 9, xRatio: 0.76, yRatio: 0.52, isUnlocked: progress.completedLevels >= 8),
+            MapLevel(id: 10, xRatio: 0.81, yRatio: 0.86, isUnlocked: progress.completedLevels >= 9),
+        ]
+    }
+
 
     var body: some View {
         GeometryReader { geo in
             ZStack {
 
-                // الخلفيةbackground
+                // الخلفية
                 Image("RoadMapp")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
-                    .frame(width: geo.size.width, height: geo.size.height, alignment: .center)
 
-                // 1. زر "Watch" الموجه لـ ProfilePage
+                // زر Profile
                 VStack {
                     HStack {
-                        Spacer() // لدفع الزر إلى أقصى اليمين
-
+                        Spacer()
                         NavigationLink {
                             ProfilePage()
                         } label: {
-                            Image("watch") // اسم الصورة من Assets
+                            Image("watch")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 140, height: 140)
-                                .padding(.trailing, 0)
                                 .padding(.top, -50)
                         }
                     }
                     Spacer()
                 }
 
-                // نص بداية رحلتك "Start your Journey" text
+                // نص بداية رحلتك
                 VStack {
                     HStack {
                         Text("بداية رحلتك")
@@ -76,7 +69,7 @@ struct RoadMap: View {
                     Spacer()
                 }
 
-                // نص لقد وصلت "You Arrived" text
+                // نص لقد وصلت
                 VStack {
                     Spacer()
                     HStack {
@@ -90,11 +83,14 @@ struct RoadMap: View {
                     }
                 }
 
-                // الليفلات Levels
+                // الليفلات
                 ForEach(levels) { level in
-                    if level.isUnlocked {
+
+                    let isUnlocked = progress.completedLevels >= level.id - 1
+
+                    if isUnlocked {
                         NavigationLink {
-                            InLevelPage() // هذا يستدعي الـ struct الموجودة في ملفك الأصلي
+                            destinationView(for: level.id)
                         } label: {
                             levelCircle(unlocked: true)
                         }
@@ -110,12 +106,40 @@ struct RoadMap: View {
                             )
                     }
                 }
-
             }
         }
     }
 
-    // شكل دائرة الليفل Level circle structure
+    // MARK: - ربط كل ليفل بصفحته
+    @ViewBuilder
+    private func destinationView(for level: Int) -> some View {
+        switch level {
+        case 1:
+            InLevelPage()
+        case 2:
+            Level2Page()
+        case 3:
+            Level3Page()
+        case 4:
+            Level4Page()
+        case 5:
+            Level5Page()
+        case 6:
+            Level6Page()
+        case 7:
+            Level7Page()
+        case 8:
+            Level8Page()
+        case 9:
+            Level9Page()
+        case 10:
+            Level10Page()
+        default:
+            InLevelPage()
+        }
+    }
+
+    // شكل دائرة الليفل
     private func levelCircle(unlocked: Bool) -> some View {
         Circle()
             .fill(Color.white)
@@ -132,14 +156,9 @@ struct RoadMap: View {
     }
 }
 
-// التعديل لتشغيل المعاينة (Preview) بنجاح
 #Preview(traits: .landscapeLeft) {
-    // يجب افتراض وجود struct GameProgress
-    // إذا لم يكن موجوداً، استبدل .environmentObject(previewProgress) بـ .environmentObject(GameProgress())
-    let previewProgress = GameProgress()
-
-    return NavigationStack {
+    NavigationStack {
         RoadMap()
-            .environmentObject(previewProgress)
+            .environmentObject(GameProgress())
     }
 }

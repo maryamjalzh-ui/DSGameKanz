@@ -3,6 +3,9 @@ import UniformTypeIdentifiers
 
 struct Level4Page: View {
     
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
+    
     @State private var columns: [Int] = []
     @State private var selectedIndex: Int = 0
     
@@ -16,9 +19,21 @@ struct Level4Page: View {
     
     @State private var showConfetti = false
     
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
+    
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 4)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 // الخلفية
                 Image("BluredMap")
@@ -41,32 +56,26 @@ struct Level4Page: View {
                     .padding(.leading, 70)
                 }
                 
-                
                 VStack {
                     
                     Spacer()
-                    // 🔹 إندكيشن البداية (يمين)
-           
-
+                    
                     ZStack(alignment: .bottomTrailing) {
                         
                         VStack(spacing: 50) {
                             
-                            Text("هل تسjطيع ترتيب الكنوز من الأكبر إلى الأصغر؟")
+                            Text("رتب الكنوز من الأكبر إلى الأصغر")
                                 .font(.custom("Farah", size: 50))
                                 .foregroundColor(.CinnamonWood)
                                 .shadow(radius: 10)
                                 .padding(.top, 50)
                                 .padding(.horizontal, 50)
                             
-                            
-                            // ======== الأعمدة ========
                             HStack(spacing: 50) {
                                 ForEach(columns.indices, id: \.self) { index in
                                     
                                     let count = columns[index]
                                     let isSelected = (selectedIndex == index)
-                                    
                                     
                                     ZStack {
                                         VStack(spacing: 5) {
@@ -81,14 +90,12 @@ struct Level4Page: View {
                                         .padding(6)
                                         .id(columns[index])
                                         
-                                        // حركة العمود المختار فقط
                                         .offset(
                                             x: isSelected ? dragOffset : 0,
                                             y: isSelected && !isDragging
                                                 ? (bounce ? -4 : 4)
                                                 : 0
                                         )
-                                        
                                         .scaleEffect(isSelected ? 1.06 : 1.0)
                                         .shadow(
                                             color: isSelected ? Color.Burgundy.opacity(0.8) : .clear,
@@ -116,34 +123,27 @@ struct Level4Page: View {
                         }
                         .background(
                             ZStack {
-                                // التدرج (إندكيشن من اليمين)
                                 LinearGradient(
                                     colors: [
                                         Color.Fern.opacity(0.18),
                                         Color.clear
                                     ],
-                                    startPoint: .trailing,   // 👈 من اليمين
+                                    startPoint: .trailing,
                                     endPoint: .leading
                                 )
                                 .cornerRadius(25)
                                 
-                                // الخلفية الأساسية
                                 RoundedRectangle(cornerRadius: 25)
                                     .fill(Color.PacificBlue.opacity(0.25))
                                 
-                                // الإطار الأخضر
                                 RoundedRectangle(cornerRadius: 25)
                                     .stroke(Color.Fern, lineWidth: 5)
                             }
                             .shadow(radius: 10)
                         )
-
-                        
                         .frame(maxWidth: 700)
                         .padding(.horizontal, 50)
                         
-                        
-                        // الشخصية
                         Image(isSortedCorrectly() ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -154,8 +154,6 @@ struct Level4Page: View {
                     Spacer()
                 }
                 
-                
-                // الكونفيتي
                 if showConfetti {
                     ConfettiView()
                         .zIndex(20)
@@ -169,7 +167,6 @@ struct Level4Page: View {
         .navigationViewStyle(.stack)
     }
     
-    
     // MARK: - Logic
     
     private func startBounce() {
@@ -181,23 +178,17 @@ struct Level4Page: View {
         }
     }
     
-    
     private func generateNewPuzzle() {
-        
         let possible = [1, 2, 3, 4]
         
         var current: [Int] = []
         var wrongIndex = 0
         
         repeat {
-            // نختار 3 قيم عشوائية
             let picked = Array(possible.shuffled().prefix(3))
-            
-            // الترتيب الصحيح: من الأكبر إلى الأصغر
             let correct = picked.sorted(by: >)
             current = correct
             
-            // نخرب الترتيب بسواب واحد
             let i = Int.random(in: 0..<current.count)
             var j = Int.random(in: 0..<current.count)
             while j == i {
@@ -206,18 +197,15 @@ struct Level4Page: View {
             
             current.swapAt(i, j)
             wrongIndex = i
-            
             columns = current
             
-        } while isSortedCorrectly()   // 🔒 نضمن أنه غير محلول
+        } while isSortedCorrectly()
         
-        selectedIndex = wrongIndex    // العمود الغلط هو المختار
+        selectedIndex = wrongIndex
         dragOffset = 0
         isDragging = false
     }
 
-
-    
     private func handleDragEnd(translation: CGFloat) {
         let threshold: CGFloat = 80
         var newIndex = selectedIndex
@@ -245,7 +233,6 @@ struct Level4Page: View {
         checkCompletion()
     }
     
-    
     private func checkCompletion() {
         if isSortedCorrectly() {
             completedQuestions += 1
@@ -255,24 +242,24 @@ struct Level4Page: View {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewPuzzle()
+                } else {
+                    // ✅ (4) نهاية الليفل
+                    goToCompletedLevel = true
                 }
             }
         }
     }
     
-    
     private func isSortedCorrectly() -> Bool {
         Array(columns.reversed()) == columns.sorted(by: >)
     }
-
 }
-
 
 // MARK: - Preview
 struct Level4Page_Previews: PreviewProvider {
     static var previews: some View {
         Level4Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }
-

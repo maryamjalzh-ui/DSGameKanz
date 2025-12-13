@@ -9,14 +9,16 @@ import UniformTypeIdentifiers
 
 struct Level7Page: View {
     
-    // MARK: - State
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
     
+    // MARK: - State
     @State private var currentCount: Int = 0
     @State private var targetCount: Int = 0
     @State private var addedCount: Int = 0
     @State private var sparklePhase: CGFloat = 0
 
-    @State private var sparkleTick = false   // ✅ الحالة الصحيحة للأنميشن
+    @State private var sparkleTick = false
     let sparklePositions: [CGPoint] = [
         CGPoint(x: -50, y: -50),
         CGPoint(x: 35, y: -30),
@@ -32,10 +34,22 @@ struct Level7Page: View {
     @State private var showConfetti = false
     @State private var isCorrect = false
     
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
+    
     var body: some View {
         
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 7)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 // الخلفية
                 Image("BluredMap")
@@ -65,7 +79,6 @@ struct Level7Page: View {
                         
                         VStack(spacing: 35) {
                             
-                            // العنوان
                             Text("اسحب من الكنز حتى نكمل العدد")
                                 .font(.custom("Farah", size: 50))
                                 .foregroundColor(.CinnamonWood)
@@ -97,14 +110,11 @@ struct Level7Page: View {
                             
                             // ===== الكنز الكبير (السحب) =====
                             ZStack {
-                                
-                                // صورة الكنز (ثابتة)
                                 Image("kanz")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 120, height: 120)
                                 
-                                // ✨ السباركلز (مستقرة)
                                 ForEach(sparklePositions.indices, id: \.self) { i in
                                     Image(systemName: "sparkle")
                                         .font(.system(size: 22))
@@ -122,11 +132,8 @@ struct Level7Page: View {
                                         )
                                 }
                                 .environment(\.layoutDirection, .leftToRight)
-
-
                             }
                             .environment(\.layoutDirection, .leftToRight)
-
                             .frame(width: 120, height: 120)
                             .clipped()
                             .onAppear {
@@ -152,7 +159,6 @@ struct Level7Page: View {
                             handleDrop()
                         }
                         
-                        // الشخصية
                         Image(isCorrect ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -163,7 +169,6 @@ struct Level7Page: View {
                     Spacer()
                 }
                 
-                // الكونفيتي
                 if showConfetti {
                     ConfettiView()
                         .zIndex(20)
@@ -188,9 +193,7 @@ struct Level7Page: View {
         isCorrect = false
     }
     
-    
     private func handleDrop() -> Bool {
-        
         guard currentCount + addedCount < targetCount else {
             return false
         }
@@ -208,6 +211,9 @@ struct Level7Page: View {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
+                } else {
+                    // ✅ (4) نهاية الليفل
+                    goToCompletedLevel = true
                 }
             }
         }
@@ -216,11 +222,11 @@ struct Level7Page: View {
     }
 }
 
-
 // MARK: - Preview
 struct Level7Page_Previews: PreviewProvider {
     static var previews: some View {
         Level7Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

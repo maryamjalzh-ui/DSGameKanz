@@ -17,15 +17,17 @@ import SwiftUI
 
 struct Level8Page: View {
     
-    // MARK: - State
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
     
+    // MARK: - State
     @State private var leftCount: Int = 0
     @State private var rightCount: Int = 0
     
     @State private var leftEmoji: String = "🏝️"
     @State private var rightEmoji: String = "🗺️"
     
-    @State private var correctAnswer: Bool = false   // true = متساويتان
+    @State private var correctAnswer: Bool = false
     @State private var selectedAnswer: Bool? = nil
     @State private var isCorrect: Bool = false
     
@@ -35,16 +37,24 @@ struct Level8Page: View {
     @State private var showConfetti = false
     @State private var showAlert = false
     
-    // MARK: - Emoji Sets (Treasure Hunt vibe)
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
     
+    // MARK: - Emoji Sets
     let emojiSets: [String] = ["🏝️", "🗝️", "💰", "💎", "🗺️"]
-    
-    
-    // MARK: - UI
     
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 8)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 // الخلفية
                 Image("BluredMap")
@@ -74,7 +84,6 @@ struct Level8Page: View {
                         
                         VStack(spacing: 40) {
                             
-                            // العنوان
                             Text("هل المجموعتان متساويتان؟")
                                 .font(.custom("Farah", size: 50))
                                 .foregroundColor(.CinnamonWood)
@@ -82,11 +91,9 @@ struct Level8Page: View {
                                 .padding(.top, 60)
                                 .padding(.horizontal, 150)
                             
-                            
                             // ===== المجموعات =====
                             HStack(spacing: 80) {
                                 
-                                // المجموعة اليسرى
                                 VStack(spacing: 10) {
                                     ForEach(0..<leftCount, id: \.self) { _ in
                                         Text(leftEmoji)
@@ -94,7 +101,6 @@ struct Level8Page: View {
                                     }
                                 }
                                 
-                                // المجموعة اليمنى
                                 VStack(spacing: 10) {
                                     ForEach(0..<rightCount, id: \.self) { _ in
                                         Text(rightEmoji)
@@ -103,11 +109,9 @@ struct Level8Page: View {
                                 }
                             }
                             
-                            
                             // ===== أزرار نعم / لا =====
                             HStack(spacing: 40) {
                                 
-                                // زر نعم
                                 Button {
                                     handleAnswer(true)
                                 } label: {
@@ -121,8 +125,6 @@ struct Level8Page: View {
                                 }
                                 .disabled(selectedAnswer != nil)
                                 
-                                
-                                // زر لا
                                 Button {
                                     handleAnswer(false)
                                 } label: {
@@ -150,8 +152,6 @@ struct Level8Page: View {
                         .frame(maxWidth: 700)
                         .padding(.horizontal, 50)
                         
-                        
-                        // الشخصية
                         Image(isCorrect ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -162,7 +162,6 @@ struct Level8Page: View {
                     Spacer()
                 }
                 
-                // الكونفيتي
                 if showConfetti {
                     ConfettiView().zIndex(20)
                 }
@@ -179,11 +178,9 @@ struct Level8Page: View {
         .navigationViewStyle(.stack)
     }
     
-    
     // MARK: - Logic
     
     private func generateNewQuestion() {
-        
         let emojiPool = emojiSets.shuffled()
         leftEmoji = emojiPool[0]
         rightEmoji = emojiPool[1]
@@ -206,7 +203,6 @@ struct Level8Page: View {
         isCorrect = false
     }
     
-    
     private func handleAnswer(_ answer: Bool) {
         selectedAnswer = answer
         
@@ -219,6 +215,9 @@ struct Level8Page: View {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
+                } else {
+                    // ✅ (4) نهاية الليفل
+                    goToCompletedLevel = true
                 }
             }
         } else {
@@ -226,14 +225,13 @@ struct Level8Page: View {
         }
     }
     
-    
     private func buttonColor(for value: Bool) -> Color {
         guard let selected = selectedAnswer else {
             return Color.Burgundy
         }
         
         if selected == value && isCorrect {
-            return Color.Fern        // ✅ الزر الصحيح يتلوّن أخضر
+            return Color.Fern
         }
         
         if selected == value && !isCorrect {
@@ -244,11 +242,11 @@ struct Level8Page: View {
     }
 }
 
-
 // MARK: - Preview
 struct Level8Page_Previews: PreviewProvider {
     static var previews: some View {
         Level8Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

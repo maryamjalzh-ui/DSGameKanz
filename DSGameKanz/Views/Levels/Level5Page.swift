@@ -1,15 +1,10 @@
-//
-//  Level5Page.swift
-//  DSGameKanz
-//
-//  Created by Maryam Jalal Alzahrani on 22/06/1447 AH.
-//
-
-
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct Level5Page: View {
+    
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
     
     let treasureSymbols = ["🌴", "💎", "🪵", "🪙", "🧭", "🏝️"]
     
@@ -29,10 +24,22 @@ struct Level5Page: View {
     // ⭐ فلاش "أحسنت"
     @State private var showSuccessFlash = false
     
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
+    
     
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 5)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 // الخلفية Blur
                 Image("BluredMap")
@@ -48,19 +55,16 @@ struct Level5Page: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                     
-                    // شريط التقدم
                     PixelProgressBar(total: totalQuestionsInLevel, filled: completedQuestions)
                         .padding(60)
                         .padding(.leading, 70)
                 }
-                
                 
                 VStack {
                     Spacer()
                     
                     ZStack(alignment: .bottomTrailing) {
                         
-                        // الإطار الأخضر الكامل
                         VStack(spacing: 10) {
                             
                             Text("اسحب الاشكال إلى عددها الصحيح")
@@ -91,14 +95,11 @@ struct Level5Page: View {
                                             removal: .scale.animation(.easeIn(duration: 0.3))
                                         ))
                                         .animation(.easeInOut(duration: 0.3), value: solvedColumns)
-                                        
-                                        // ✅ سحب سهل (مثل ليفل 4)
                                         .draggable("\(value)")
                                     }
                                 }
                             }
 
-                            
                             // الأرقام (تحت)
                             HStack(spacing: 40) {
                                 ForEach(dropTargets, id: \.self) { option in
@@ -133,7 +134,6 @@ struct Level5Page: View {
                         .frame(maxWidth: 700)
                         .padding(.horizontal, 50)
                         
-                        
                         // الشخصية
                         Image(isFullySolved ? "happy" : "thinking")
                             .resizable()
@@ -146,14 +146,13 @@ struct Level5Page: View {
                     Spacer()
                 }
                 
-                
                 // 🎉 كونفيتي
                 if showConfetti {
                     ConfettiView()
                         .zIndex(20)
                 }
                 
-                // ⭐ فلاش سكرين "أحسنت"
+                // ⭐ فلاش "أحسنت"
                 if showSuccessFlash {
                     ZStack {
                         Color.black.opacity(0.2)
@@ -232,7 +231,6 @@ struct Level5Page: View {
                         completedQuestions += 1
                         showConfetti = true
                         
-                        // ⭐ بعد آخر سؤال
                         if completedQuestions == totalQuestionsInLevel {
                             showSuccessFlash = true
                             
@@ -247,6 +245,9 @@ struct Level5Page: View {
                             if completedQuestions < totalQuestionsInLevel {
                                 correctTargets.removeAll()
                                 generateNewPuzzle()
+                            } else {
+                                // ✅ (4) نهاية الليفل
+                                goToCompletedLevel = true
                             }
                         }
                     }
@@ -266,6 +267,7 @@ struct Level5Page: View {
 struct Level5Page_Previews: PreviewProvider {
     static var previews: some View {
         Level5Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

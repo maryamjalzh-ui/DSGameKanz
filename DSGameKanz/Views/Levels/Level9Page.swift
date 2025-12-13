@@ -9,6 +9,9 @@ import SwiftUI
 
 struct Level9Page: View {
     
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
+    
     // MARK: - State
     
     let treasureEmojis = ["🗺️", "⚓️", "🛶", "🗝️", "📜"]
@@ -22,17 +25,29 @@ struct Level9Page: View {
     
     @State private var selectedOption: Int? = nil
     @State private var isCorrect = false
-    @State private var shakeTrigger: Int = 0   // ✅ جديد
+    @State private var shakeTrigger: Int = 0
     
     @State private var completedQuestions = 0
     let totalQuestionsInLevel = 5
     
     @State private var showConfetti = false
     
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
+    
     
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 9)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 Image("BluredMap")
                     .resizable()
@@ -92,7 +107,6 @@ struct Level9Page: View {
                                             .cornerRadius(18)
                                             .shadow(radius: 5)
                                     }
-                                    // ✅ الاهتزاز فقط عند الخطأ
                                     .modifier(
                                         ShakeEffect(
                                             trigger: selectedOption == option && !isCorrect
@@ -186,10 +200,12 @@ struct Level9Page: View {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
+                } else {
+                    // ✅ (4) نهاية الليفل
+                    goToCompletedLevel = true
                 }
             }
         } else {
-            // ❌ إجابة خاطئة → اهتزاز
             shakeTrigger += 1
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -246,6 +262,7 @@ struct ShakeEffect1: GeometryEffect {
 struct Level9Page_Previews: PreviewProvider {
     static var previews: some View {
         Level9Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

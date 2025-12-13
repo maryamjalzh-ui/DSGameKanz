@@ -41,8 +41,10 @@ struct DotPatternGeneratorLevel1 {
     }
 }
 
-// MARK: - صفحة المستوى الأول (اسمها الصحيح الآن: InLevelPage)
+// MARK: - صفحة المستوى الأول
 struct InLevelPage: View {
+    
+    @EnvironmentObject var progress: GameProgress   // ✅ مهم
     
     @State private var currentPattern: DotPattern = DotPatternGeneratorLevel1.randomPattern(for: 5)
     @State private var options: [Int] = []
@@ -58,10 +60,21 @@ struct InLevelPage: View {
     let totalQuestionsInLevel = 5
     
     @State private var showConfetti = false
+    @State private var goToCompletedLevel = false
     
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 1)
+                        .environmentObject(progress),   // ✅ هذا هو الحل
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
                 Image("BluredMap")
                     .resizable()
                     .scaledToFill()
@@ -74,9 +87,12 @@ struct InLevelPage: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                     
-                    PixelProgressBar(total: totalQuestionsInLevel, filled: completedQuestions)
-                        .padding(60)
-                        .padding(.leading, 70)
+                    PixelProgressBar(
+                        total: totalQuestionsInLevel,
+                        filled: completedQuestions
+                    )
+                    .padding(60)
+                    .padding(.leading, 70)
                 }
                 
                 VStack {
@@ -84,6 +100,7 @@ struct InLevelPage: View {
                     
                     ZStack(alignment: .bottomTrailing) {
                         VStack (spacing: 45) {
+                            
                             Text("كم عدد النقاط؟")
                                 .font(.custom("Farah", size: 50))
                                 .shadow(radius: 10)
@@ -168,18 +185,19 @@ struct InLevelPage: View {
         
         if answer == currentPattern.number {
             isAnswerCorrect = true
-            withAnimation { completedQuestions += 1 }
+            completedQuestions += 1
             
             showConfetti = true
-            let duration = 2.5
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 showConfetti = false
+                
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
+                } else {
+                    goToCompletedLevel = true   // ✅ انتقال مضمون
                 }
             }
-            
         } else {
             isAnswerCorrect = false
             alertMessage = "للأسف الإجابة خاطئة"
@@ -191,10 +209,11 @@ struct InLevelPage: View {
     }
 }
 
-// MARK: - المعاينة الصحيحة
+// MARK: - Preview
 struct InLevelPage_Previews: PreviewProvider {
     static var previews: some View {
         InLevelPage()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

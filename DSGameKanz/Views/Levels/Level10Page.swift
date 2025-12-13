@@ -9,12 +9,15 @@ import SwiftUI
 
 struct Level10Page: View {
     
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
+    
     // MARK: - State
     
     let treasureEmojis = ["🗺️", "⚓️", "🛶", "🗝️", "📜"]
     
-    @State private var rightCount = 0   // العدد الأكبر (يمين)
-    @State private var leftCount = 0    // العدد الأصغر (ينطرح)
+    @State private var rightCount = 0
+    @State private var leftCount = 0
     
     @State private var currentEmoji = "🗺️"
     
@@ -30,12 +33,24 @@ struct Level10Page: View {
     
     @State private var showConfetti = false
     
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
+    
     
     // MARK: - UI
     
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 10)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 Image("BluredMap")
                     .resizable()
@@ -69,7 +84,6 @@ struct Level10Page: View {
                                 .shadow(radius: 10)
                                 .padding(.top, 60)
                             
-                            // ===== المعادلة (يمين → يسار) =====
                             HStack(spacing: 40) {
                                 emojiGroup(count: rightCount)
                                 
@@ -83,7 +97,6 @@ struct Level10Page: View {
                             
                             Divider().frame(width: 400)
                             
-                            // ===== الخيارات =====
                             HStack(spacing: 30) {
                                 ForEach(options, id: \.self) { option in
                                     
@@ -187,10 +200,12 @@ struct Level10Page: View {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
+                } else {
+                    // ✅ (4) نهاية آخر ليفل
+                    goToCompletedLevel = true
                 }
             }
         } else {
-            // ❌ إجابة خاطئة → هزّ فعلي
             shakeTrigger += 1
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -247,6 +262,7 @@ struct ShakeEffect: GeometryEffect {
 struct Level10Page_Previews: PreviewProvider {
     static var previews: some View {
         Level10Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

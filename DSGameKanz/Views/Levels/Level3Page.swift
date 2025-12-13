@@ -16,6 +16,9 @@ import UniformTypeIdentifiers
 
 struct Level3Page: View {
     
+    // ✅ (1) ربط التقدم
+    @EnvironmentObject var progress: GameProgress
+    
     @State private var columns: [Int] = []
     @State private var selectedIndex: Int = 0
     
@@ -29,9 +32,21 @@ struct Level3Page: View {
     
     @State private var showConfetti = false
     
+    // ✅ (2) الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
+    
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 3)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
                 
                 // الخلفية
                 Image("BluredMap")
@@ -61,7 +76,7 @@ struct Level3Page: View {
                         
                         VStack(spacing: 50) {
                             
-                            Text("هل تستطيع ترتيب الكنوز من الأصغر إلى الأكبر؟")
+                            Text("رتب الكنوز من الأصغر إلى الأكبر")
                                 .font(.custom("Farah", size: 50))
                                 .foregroundColor(.CinnamonWood)
                                 .shadow(radius: 10)
@@ -88,14 +103,12 @@ struct Level3Page: View {
                                         .padding(6)
                                         .id(columns[index])
                                         
-                                        // حركة العمود المختار فقط
                                         .offset(
                                             x: isSelected ? dragOffset : 0,
                                             y: isSelected && !isDragging
                                                 ? (bounce ? -4 : 4)
                                                 : 0
                                         )
-                                        
                                         .scaleEffect(isSelected ? 1.06 : 1.0)
                                         .shadow(
                                             color: isSelected ? Color.Burgundy.opacity(0.8) : .clear,
@@ -144,7 +157,6 @@ struct Level3Page: View {
                         .frame(maxWidth: 700)
                         .padding(.horizontal, 50)
                         
-                        // الشخصية
                         Image(isSortedCorrectly() ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -179,14 +191,12 @@ struct Level3Page: View {
     }
     
     private func generateNewPuzzle() {
-        
         let possible = [1, 2, 3, 4]
-        
         var current: [Int] = []
         
         repeat {
             let picked = Array(possible.shuffled().prefix(3))
-            let correct = picked.sorted(by: <)   // أصغر → أكبر (Level 5)
+            let correct = picked.sorted(by: <)
             current = correct
             
             let i = Int.random(in: 0..<current.count)
@@ -196,17 +206,15 @@ struct Level3Page: View {
             }
             
             current.swapAt(i, j)
-            
             columns = current
             
-        } while isSortedCorrectly()   // 🔒 نضمن أنه غير محلول
+        } while isSortedCorrectly()
         
         selectedIndex = Int.random(in: 0..<columns.count)
         dragOffset = 0
         isDragging = false
     }
 
-    
     private func handleDragEnd(translation: CGFloat) {
         let threshold: CGFloat = 80
         var newIndex = selectedIndex
@@ -243,12 +251,14 @@ struct Level3Page: View {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewPuzzle()
+                } else {
+                    // ✅ (4) نهاية الليفل
+                    goToCompletedLevel = true
                 }
             }
         }
     }
     
-    // ✅ RTL + أصغر → أكبر
     private func isSortedCorrectly() -> Bool {
         Array(columns.reversed()) == columns.sorted(by: <)
     }
@@ -257,7 +267,7 @@ struct Level3Page: View {
 struct Level3Page_Previews: PreviewProvider {
     static var previews: some View {
         Level3Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }
-

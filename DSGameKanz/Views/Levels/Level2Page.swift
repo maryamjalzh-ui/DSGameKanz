@@ -45,17 +45,14 @@ struct DotPatternGeneratorLevel2 {
 struct DotPatternViewLevel2: View {
     
     let pattern: DotPattern
-    let symbol: String   // ← رمز ثابت لكل سؤال
+    let symbol: String
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 24) {
-
             ForEach(pattern.columns.indices, id: \.self) { colIndex in
                 let count = pattern.columns[colIndex]
-
                 VStack(spacing: 8) {
                     ForEach(0..<count, id: \.self) { _ in
-
                         Text(symbol)
                             .font(.system(size: 40))
                             .shadow(radius: 2)
@@ -68,16 +65,18 @@ struct DotPatternViewLevel2: View {
     }
 }
 
-// MARK: - صفحة المستوى الثاني كاملة
+// MARK: - صفحة المستوى الثاني
 struct Level2Page: View {
+    
+    // ✅ ربط التقدم
+    @EnvironmentObject var progress: GameProgress
     
     // رموز Treasure Hunt
     let treasureSymbols = ["🗺️", "🪵", "💎", "🦜", "🪙", "🏝️"]
 
     @State private var currentPattern: DotPattern = DotPatternGeneratorLevel2.randomPattern(for: 5)
     @State private var options: [Int] = []
-
-    @State private var currentSymbol: String = "⛏️"   // ← رمز السؤال الحالي
+    @State private var currentSymbol: String = "⛏️"
 
     @State private var showingAlert = false
     @State private var alertMessage = ""
@@ -89,10 +88,22 @@ struct Level2Page: View {
     let totalQuestionsInLevel = 5
 
     @State private var showConfetti = false
+    
+    // ✅ الانتقال لصفحة الإكمال
+    @State private var goToCompletedLevel = false
 
     var body: some View {
         NavigationView {
             ZStack {
+                
+                // 🔹 Navigation مخفي → صفحة الإكمال
+                NavigationLink(
+                    destination: LevelCompletedView(levelNumber: 2)
+                        .environmentObject(progress),
+                    isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
 
                 Image("BluredMap")
                     .resizable()
@@ -106,16 +117,19 @@ struct Level2Page: View {
                         .frame(maxWidth: .infinity)
                         .padding()
 
-                    PixelProgressBar(total: totalQuestionsInLevel, filled: completedQuestions)
-                        .padding(60)
-                        .padding(.leading, 70)
+                    PixelProgressBar(
+                        total: totalQuestionsInLevel,
+                        filled: completedQuestions
+                    )
+                    .padding(60)
+                    .padding(.leading, 70)
                 }
 
                 VStack {
                     Spacer()
 
                     ZStack(alignment: .bottomTrailing) {
-                        VStack (spacing: 45) {
+                        VStack(spacing: 45) {
 
                             Text("كم عدد الأشكال؟")
                                 .font(.custom("Farah", size: 50))
@@ -123,9 +137,11 @@ struct Level2Page: View {
                                 .foregroundColor(.CinnamonWood)
                                 .padding(.top, 50)
 
-                            // ← عرض الأشكال
-                            DotPatternViewLevel2(pattern: currentPattern, symbol: currentSymbol)
-                                .padding(.vertical, 10)
+                            DotPatternViewLevel2(
+                                pattern: currentPattern,
+                                symbol: currentSymbol
+                            )
+                            .padding(.vertical, 10)
 
                             HStack(spacing: 15) {
                                 ForEach(options, id: \.self) { option in
@@ -169,7 +185,6 @@ struct Level2Page: View {
                         .zIndex(1)
                         .allowsHitTesting(false)
                 }
-
             }
             .onAppear { generateNewQuestion() }
             .disabled(isInteractionDisabled)
@@ -190,13 +205,9 @@ struct Level2Page: View {
     // MARK: - منطق اللعبة
     private func generateNewQuestion() {
         let (newPattern, newOptions) = DotPatternGeneratorLevel2.generateQuestion()
-
         currentPattern = newPattern
         options = newOptions
-
-        // ← اختيار رمز واحد عشوائي لكل سؤال (حسب اختيارك A)
         currentSymbol = treasureSymbols.randomElement() ?? "⛏️"
-
         isInteractionDisabled = false
         selectedOption = nil
         showingAlert = false
@@ -207,25 +218,21 @@ struct Level2Page: View {
         selectedOption = answer
 
         if answer == currentPattern.number {
-
             isAnswerCorrect = true
-
-            withAnimation {
-                completedQuestions += 1
-            }
+            completedQuestions += 1
 
             showConfetti = true
-            let duration = 2.5
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                 showConfetti = false
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
+                } else {
+                    // ✅ نهاية الليفل
+                    goToCompletedLevel = true
                 }
             }
-
         } else {
-
             isAnswerCorrect = false
             alertMessage = "للأسف الإجابة خاطئة"
 
@@ -240,6 +247,7 @@ struct Level2Page: View {
 struct Level2Page_Previews: PreviewProvider {
     static var previews: some View {
         Level2Page()
+            .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }

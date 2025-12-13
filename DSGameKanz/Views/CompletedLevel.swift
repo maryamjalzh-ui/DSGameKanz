@@ -1,88 +1,79 @@
-//
-//  CompletedLevel.swift
-//  DSGameKanz
-//
-//  Created by Tala Aldhahri on 11/06/1447 AH.
-//
-
-
 import SwiftUI
 
 struct LevelCompletedView: View {
-    var levelNumber: Int
-    
+
+    let levelNumber: Int
+
     @EnvironmentObject var progress: GameProgress
-    
+    @Environment(\.dismiss) private var dismiss
+
     // MARK: - Character Logic
     var unlockedCharacterImageName: String? {
-        switch levelNumber {
-        case 2:
-            return "level 2-happy"
-        case 4:
-            return "level 4-happy"
-        case 6:
-            return "level 6-happy"
-        case 8:
-            return "level 8-happy"
-        case 10:
-            return "level 10-happy"
-        default:
-            return nil
-        }
+        // تظهر كل ليفلين (2، 4، 6، 8، 10)
+        guard levelNumber % 2 == 0 else { return nil }
+
+        return "level \(levelNumber)-happy"
     }
-    
+
     var body: some View {
         ZStack {
-            // 1. Background Layer
+
             Image("BluredMap")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
-            
-            // 2. The Scroll/Map Holder Layer
+
             ZStack {
                 Image("HandsOnMap")
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity)
                     .padding()
-                
-                // 3. Content Layer
-                VStack(spacing: 15) {
-                    
+
+                VStack(spacing: 20) {
+
                     Text("أحسنت!")
                         .font(.custom("Farah", size: 50))
-                        .foregroundColor(Color.CinnamonWood)
-                        .fontWeight(.bold)
-                    
+                        .foregroundColor(.CinnamonWood)
+
                     if let imageName = unlockedCharacterImageName {
-                        
                         Text("لقد حصلت على صديق جديد")
                             .font(.custom("Farah", size: 30))
                             .foregroundColor(.black.opacity(0.7))
-                        
+
                         Image(imageName)
                             .resizable()
                             .scaledToFit()
                             .frame(height: 180)
-                            .padding(.top, 5)
-                            .transition(.scale.combined(with: .opacity))
                     }
+
+                    Button {
+                        // 👇 هنا التحديث الحقيقي للتقدم
+                        progress.completeLevelIfNeeded(levelNumber)
+
+                        dismiss()
+                    } label: {
+                        Text("العودة للخريطة")
+                            .font(.custom("Farah", size: 30))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 50)
+                            .padding(.vertical, 14)
+                            .background(Color.Burgundy)
+                            .cornerRadius(18)
+                    }
+                    .padding(.top, 20)
                 }
-                .padding(.bottom, 20)
             }
-        }
-        .onAppear {
-            // نسجّل أن اللاعب خلّص مرحلة
-            progress.registerLevelCompleted()
         }
     }
 }
 
+// MARK: - Preview
 struct LevelCompletedView_Previews: PreviewProvider {
     static var previews: some View {
-        LevelCompletedView(levelNumber: 2)
-            .environmentObject(GameProgress())
-            .previewInterfaceOrientation(.landscapeLeft)
+        NavigationStack {
+            LevelCompletedView(levelNumber: 2)
+                .environmentObject(GameProgress())
+        }
+        .previewInterfaceOrientation(.landscapeLeft)
     }
 }
