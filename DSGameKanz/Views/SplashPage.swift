@@ -6,23 +6,22 @@ struct SplashPage: View {
 
     var body: some View {
         ZStack {
-            Color.primary.ignoresSafeArea()
+            Color.primary
+                .ignoresSafeArea()
             
-            Image("Group")
+            Image("appIcon")
                 .resizable()
                 .scaledToFit()
-                .padding(110)
-                .scaleEffect(animate ? 1.0 : 0.7)   // smoother start
+                .frame(width: 140, height: 140)
+                .scaleEffect(animate ? 1.0 : 0.85)
                 .opacity(animate ? 1 : 0)
         }
         .onAppear {
-            // start animation
-            withAnimation(.easeOut(duration: 1.0)) {
+            withAnimation(.easeOut(duration: 0.8)) {
                 animate = true
             }
             
-            // wait then go to next page
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 onFinished()
             }
         }

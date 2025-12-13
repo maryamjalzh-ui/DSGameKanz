@@ -35,7 +35,6 @@ struct RoadMap: View {
                 // الخلفية
                 Image("RoadMapp")
                     .resizable()
-                    .scaledToFill()
                     .ignoresSafeArea()
 
                 // زر Profile
