@@ -1,7 +1,15 @@
+//
+//  Level5Page.swift
+//  DSGameKanz
+//
+//  Created by Maryam Jalal Alzahrani on 22/06/1447 AH.
+//
+
+
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct Level3Page: View {
+struct Level5Page: View {
     
     let treasureSymbols = ["🌴", "💎", "🪵", "🪙", "🧭", "🏝️"]
     
@@ -17,6 +25,9 @@ struct Level3Page: View {
     @State private var showConfetti = false
     @State private var showAlert = false
     @State private var isFullySolved = false
+    
+    // ⭐ فلاش "أحسنت"
+    @State private var showSuccessFlash = false
     
     
     var body: some View {
@@ -49,7 +60,7 @@ struct Level3Page: View {
                     
                     ZStack(alignment: .bottomTrailing) {
                         
-                        // الإطار الأخضر الكامل (نفس ليفل 1 و2)
+                        // الإطار الأخضر الكامل
                         VStack(spacing: 10) {
                             
                             Text("اسحب الاشكال إلى عددها الصحيح")
@@ -57,11 +68,8 @@ struct Level3Page: View {
                                 .foregroundColor(.CinnamonWood)
                                 .shadow(radius: 10)
                                 .padding(.top, 50)
-                                .padding(.trailing, 30)
-                                .padding(.leading, 30)
+                                .padding(.horizontal, 30)
 
-                            // الأعمدة (فوق)
-                            // الأعمدة (فوق)
                             // الأعمدة (فوق)
                             HStack(spacing: 50) {
                                 ForEach(columns, id: \.self) { value in
@@ -77,22 +85,20 @@ struct Level3Page: View {
                                             }
                                         }
                                         .padding(10)
-                                        .background(Color.clear)
-                                        .id(value)  // ← أهم خطوة حتى يفهم SwiftUI أن العنصر تغير
+                                        .id(value)
                                         .transition(.asymmetric(
                                             insertion: .scale.animation(.easeOut(duration: 0.3)),
                                             removal: .scale.animation(.easeIn(duration: 0.3))
                                         ))
                                         .animation(.easeInOut(duration: 0.3), value: solvedColumns)
-                                        .onDrag {
-                                            NSItemProvider(object: "\(value)" as NSString)
-                                        }
+                                        
+                                        // ✅ سحب سهل (مثل ليفل 4)
+                                        .draggable("\(value)")
                                     }
                                 }
                             }
 
                             
-                            // الأرقام (تحت)
                             // الأرقام (تحت)
                             HStack(spacing: 40) {
                                 ForEach(dropTargets, id: \.self) { option in
@@ -107,7 +113,7 @@ struct Level3Page: View {
                                             .font(.system(size: 34, weight: .bold))
                                             .foregroundColor(.white)
                                     }
-                                    .onDrop(of: [.plainText], isTargeted: nil) { providers in
+                                    .onDrop(of: [.text], isTargeted: nil) { providers in
                                         handleDrop(providers: providers, target: option)
                                     }
                                 }
@@ -128,7 +134,7 @@ struct Level3Page: View {
                         .padding(.horizontal, 50)
                         
                         
-                        // الشخصية تحت يمين الإطار — مثل ليفل 1
+                        // الشخصية
                         Image(isFullySolved ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -141,10 +147,33 @@ struct Level3Page: View {
                 }
                 
                 
-                // كونفيتي
+                // 🎉 كونفيتي
                 if showConfetti {
                     ConfettiView()
                         .zIndex(20)
+                }
+                
+                // ⭐ فلاش سكرين "أحسنت"
+                if showSuccessFlash {
+                    ZStack {
+                        Color.black.opacity(0.2)
+                            .ignoresSafeArea()
+                        
+                        ZStack {
+                            Image("HandsOnMap")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: 600)
+                            
+                            Text("أحسنت!")
+                                .font(.custom("Farah", size: 70))
+                                .foregroundColor(.CinnamonWood)
+                                .shadow(radius: 10)
+                                .offset(y: -120)
+                        }
+                        .transition(.scale)
+                    }
+                    .zIndex(50)
                 }
             }
             .onAppear { generateNewPuzzle() }
@@ -159,7 +188,6 @@ struct Level3Page: View {
     // MARK: - Logic
     
     private func generateNewPuzzle() {
-        
         let possible = [2, 3, 4, 5, 6]
         
         columns = Array(possible.shuffled().prefix(3)).sorted()
@@ -192,10 +220,10 @@ struct Level3Page: View {
                 if draggedValue == target {
                     
                     solvedColumns.insert(target)
-                    correctTargets.insert(target)  // ← تلوين الزر
+                    correctTargets.insert(target)
                     
                     withAnimation {
-                        solvedColumns.insert(draggedValue) // ← يخفي العمود
+                        solvedColumns.insert(draggedValue)
                     }
                     
                     if solvedColumns.count == columns.count {
@@ -203,6 +231,15 @@ struct Level3Page: View {
                         isFullySolved = true
                         completedQuestions += 1
                         showConfetti = true
+                        
+                        // ⭐ بعد آخر سؤال
+                        if completedQuestions == totalQuestionsInLevel {
+                            showSuccessFlash = true
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                showSuccessFlash = false
+                            }
+                        }
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             showConfetti = false
@@ -217,7 +254,6 @@ struct Level3Page: View {
                 } else {
                     showAlert = true
                 }
-
             }
         }
         
@@ -227,9 +263,9 @@ struct Level3Page: View {
 
 
 // MARK: - Preview
-struct Level3Page_Previews: PreviewProvider {
+struct Level5Page_Previews: PreviewProvider {
     static var previews: some View {
-        Level3Page()
+        Level5Page()
             .previewInterfaceOrientation(.landscapeLeft)
     }
 }
