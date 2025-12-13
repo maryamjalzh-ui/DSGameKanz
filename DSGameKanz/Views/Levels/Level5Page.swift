@@ -24,19 +24,32 @@ struct Level5Page: View {
     // ⭐ فلاش "أحسنت"
     @State private var showSuccessFlash = false
     
-    // ✅ (2) الانتقال لصفحة الإكمال
+    // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false   // 👈 الجديد
     
     
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 صفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 5)
-                        .environmentObject(progress),
+                    destination: LevelCompletedView(
+                        levelNumber: 5,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للرود ماب
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -47,7 +60,7 @@ struct Level5Page: View {
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-                // اليدين + الخريطة (HandsOnMap)
+                // اليدين + الخريطة
                 ZStack(alignment: .topLeading) {
                     Image("HandsOnMap")
                         .resizable()
@@ -55,9 +68,12 @@ struct Level5Page: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                     
-                    PixelProgressBar(total: totalQuestionsInLevel, filled: completedQuestions)
-                        .padding(60)
-                        .padding(.leading, 70)
+                    PixelProgressBar(
+                        total: totalQuestionsInLevel,
+                        filled: completedQuestions
+                    )
+                    .padding(60)
+                    .padding(.leading, 70)
                 }
                 
                 VStack {
@@ -191,6 +207,7 @@ struct Level5Page: View {
         
         columns = Array(possible.shuffled().prefix(3)).sorted()
         solvedColumns.removeAll()
+        correctTargets.removeAll()
         isFullySolved = false
         
         var mapping: [Int: String] = [:]
@@ -243,10 +260,9 @@ struct Level5Page: View {
                             showConfetti = false
                             
                             if completedQuestions < totalQuestionsInLevel {
-                                correctTargets.removeAll()
                                 generateNewPuzzle()
                             } else {
-                                // ✅ (4) نهاية الليفل
+                                // ✅ نهاية الليفل
                                 goToCompletedLevel = true
                             }
                         }

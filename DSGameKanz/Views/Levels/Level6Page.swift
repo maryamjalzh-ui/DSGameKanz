@@ -26,19 +26,32 @@ struct Level6Page: View {
     @State private var showConfetti = false
     @State private var showAlert = false
     
-    // ✅ (2) الانتقال لصفحة الإكمال
+    // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false   // 👈 الجديد
     
     // MARK: - UI
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 صفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 6)
-                        .environmentObject(progress),
+                    destination: LevelCompletedView(
+                        levelNumber: 6,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للرود ماب
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -76,8 +89,7 @@ struct Level6Page: View {
                                 .foregroundColor(.CinnamonWood)
                                 .shadow(radius: 10)
                                 .padding(.top, 60)
-                                .padding(.leading, 150)
-                                .padding(.trailing, 150)
+                                .padding(.horizontal, 150)
                             
                             // ===== الكنوز =====
                             let visibleCount = totalCount - hiddenCount
@@ -162,7 +174,7 @@ struct Level6Page: View {
     
     private func generateNewQuestion() {
         let total = Int.random(in: 3...6)
-        let hidden = Int.random(in: 1..<(total))
+        let hidden = Int.random(in: 1..<total)
         
         let correctAnswer = total - hidden
         
@@ -192,7 +204,7 @@ struct Level6Page: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 } else {
-                    // ✅ (4) نهاية الليفل
+                    // ✅ نهاية الليفل
                     goToCompletedLevel = true
                 }
             }

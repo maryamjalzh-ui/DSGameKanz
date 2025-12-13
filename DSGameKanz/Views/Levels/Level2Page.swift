@@ -68,7 +68,7 @@ struct DotPatternViewLevel2: View {
 // MARK: - صفحة المستوى الثاني
 struct Level2Page: View {
     
-    // ✅ ربط التقدم
+    // ✅ Environment
     @EnvironmentObject var progress: GameProgress
     
     // رموز Treasure Hunt
@@ -89,18 +89,31 @@ struct Level2Page: View {
 
     @State private var showConfetti = false
     
-    // ✅ الانتقال لصفحة الإكمال
+    // ✅ الانتقالات
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false
 
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 صفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 2)
-                        .environmentObject(progress),
+                    destination: LevelCompletedView(
+                        levelNumber: 2,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للرود ماب
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -228,7 +241,6 @@ struct Level2Page: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 } else {
-                    // ✅ نهاية الليفل
                     goToCompletedLevel = true
                 }
             }

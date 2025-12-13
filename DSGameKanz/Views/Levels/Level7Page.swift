@@ -16,7 +16,6 @@ struct Level7Page: View {
     @State private var currentCount: Int = 0
     @State private var targetCount: Int = 0
     @State private var addedCount: Int = 0
-    @State private var sparklePhase: CGFloat = 0
 
     @State private var sparkleTick = false
     let sparklePositions: [CGPoint] = [
@@ -34,19 +33,32 @@ struct Level7Page: View {
     @State private var showConfetti = false
     @State private var isCorrect = false
     
-    // ✅ (2) الانتقال لصفحة الإكمال
+    // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false   // 👈 الجديد
     
     var body: some View {
         
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 صفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 7)
-                        .environmentObject(progress),
+                    destination: LevelCompletedView(
+                        levelNumber: 7,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للرود ماب
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -103,7 +115,7 @@ struct Level7Page: View {
                                     .font(.system(size: 34))
                                     .foregroundColor(.CinnamonWood)
                                 
-                                Text(" \(addedCount)")
+                                Text("\(addedCount)")
                                     .font(.system(size: 34, weight: .bold))
                                     .foregroundColor(.CinnamonWood)
                             }
@@ -131,14 +143,10 @@ struct Level7Page: View {
                                             value: sparkleTick
                                         )
                                 }
-                                .environment(\.layoutDirection, .leftToRight)
                             }
                             .environment(\.layoutDirection, .leftToRight)
                             .frame(width: 120, height: 120)
-                            .clipped()
-                            .onAppear {
-                                sparkleTick.toggle()
-                            }
+                            .onAppear { sparkleTick.toggle() }
                             .onDrag {
                                 NSItemProvider(object: "kanz" as NSString)
                             }
@@ -212,7 +220,7 @@ struct Level7Page: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 } else {
-                    // ✅ (4) نهاية الليفل
+                    // ✅ نهاية الليفل
                     goToCompletedLevel = true
                 }
             }

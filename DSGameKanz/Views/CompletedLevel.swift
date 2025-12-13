@@ -3,15 +3,14 @@ import SwiftUI
 struct LevelCompletedView: View {
 
     let levelNumber: Int
+    @Binding var goToMap: Bool   // 👈 الجديد
 
     @EnvironmentObject var progress: GameProgress
-    @Environment(\.dismiss) private var dismiss
 
     // MARK: - Character Logic
     var unlockedCharacterImageName: String? {
         // تظهر كل ليفلين (2، 4، 6، 8، 10)
         guard levelNumber % 2 == 0 else { return nil }
-
         return "level \(levelNumber)-happy"
     }
 
@@ -47,10 +46,11 @@ struct LevelCompletedView: View {
                     }
 
                     Button {
-                        // 👇 هنا التحديث الحقيقي للتقدم
+                        // ✅ تحديث التقدم
                         progress.completeLevelIfNeeded(levelNumber)
 
-                        dismiss()
+                        // ✅ رجوع فعلي للرود ماب
+                        goToMap = true
                     } label: {
                         Text("العودة للخريطة")
                             .font(.custom("Farah", size: 30))
@@ -67,12 +67,16 @@ struct LevelCompletedView: View {
     }
 }
 
+
 // MARK: - Preview
 struct LevelCompletedView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            LevelCompletedView(levelNumber: 2)
-                .environmentObject(GameProgress())
+            LevelCompletedView(
+                levelNumber: 2,
+                goToMap: .constant(false)   // ✅ حل البرفيو
+            )
+            .environmentObject(GameProgress())
         }
         .previewInterfaceOrientation(.landscapeLeft)
     }

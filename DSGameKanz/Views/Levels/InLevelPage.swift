@@ -44,7 +44,7 @@ struct DotPatternGeneratorLevel1 {
 // MARK: - صفحة المستوى الأول
 struct InLevelPage: View {
     
-    @EnvironmentObject var progress: GameProgress   // ✅ مهم
+    @EnvironmentObject var progress: GameProgress   // ✅
     
     @State private var currentPattern: DotPattern = DotPatternGeneratorLevel1.randomPattern(for: 5)
     @State private var options: [Int] = []
@@ -60,17 +60,32 @@ struct InLevelPage: View {
     let totalQuestionsInLevel = 5
     
     @State private var showConfetti = false
+    
+    // 🔹 للانتقال
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false   // ✅
     
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 الانتقال لصفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 1)
-                        .environmentObject(progress),   // ✅ هذا هو الحل
+                    destination: LevelCompletedView(
+                        levelNumber: 1,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للرود ماب
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -185,7 +200,7 @@ struct InLevelPage: View {
         
         if answer == currentPattern.number {
             isAnswerCorrect = true
-            completedQuestions += 1
+            withAnimation { completedQuestions += 1 }
             
             showConfetti = true
             
@@ -195,9 +210,10 @@ struct InLevelPage: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 } else {
-                    goToCompletedLevel = true   // ✅ انتقال مضمون
+                    goToCompletedLevel = true
                 }
             }
+            
         } else {
             isAnswerCorrect = false
             alertMessage = "للأسف الإجابة خاطئة"

@@ -32,18 +32,31 @@ struct Level3Page: View {
     
     @State private var showConfetti = false
     
-    // ✅ (2) الانتقال لصفحة الإكمال
+    // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false   // 👈 الجديد
     
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 صفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 3)
-                        .environmentObject(progress),
+                    destination: LevelCompletedView(
+                        levelNumber: 3,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للرود ماب
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -252,7 +265,7 @@ struct Level3Page: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewPuzzle()
                 } else {
-                    // ✅ (4) نهاية الليفل
+                    // ✅ نهاية الليفل
                     goToCompletedLevel = true
                 }
             }

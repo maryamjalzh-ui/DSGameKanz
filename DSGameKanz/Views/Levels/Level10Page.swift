@@ -33,8 +33,9 @@ struct Level10Page: View {
     
     @State private var showConfetti = false
     
-    // ✅ (2) الانتقال لصفحة الإكمال
+    // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false   // 👈 الجديد
     
     
     // MARK: - UI
@@ -43,11 +44,23 @@ struct Level10Page: View {
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 صفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 10)
-                        .environmentObject(progress),
+                    destination: LevelCompletedView(
+                        levelNumber: 10,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للخريطة
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -201,7 +214,7 @@ struct Level10Page: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 } else {
-                    // ✅ (4) نهاية آخر ليفل
+                    // ✅ نهاية آخر ليفل
                     goToCompletedLevel = true
                 }
             }

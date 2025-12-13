@@ -6,13 +6,6 @@
 //  Created by Maryam Jalal Alzahrani
 //
 
-//
-//  Level8Page.swift
-//  DSGameKanz
-//
-//  Created by Maryam Jalal Alzahrani
-//
-
 import SwiftUI
 
 struct Level8Page: View {
@@ -37,8 +30,9 @@ struct Level8Page: View {
     @State private var showConfetti = false
     @State private var showAlert = false
     
-    // ✅ (2) الانتقال لصفحة الإكمال
+    // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
+    @State private var goToMap = false   // 👈 الجديد
     
     // MARK: - Emoji Sets
     let emojiSets: [String] = ["🏝️", "🗝️", "💰", "💎", "🗺️"]
@@ -47,11 +41,23 @@ struct Level8Page: View {
         NavigationView {
             ZStack {
                 
-                // 🔹 Navigation مخفي → صفحة الإكمال
+                // 🔹 صفحة الإكمال
                 NavigationLink(
-                    destination: LevelCompletedView(levelNumber: 8)
-                        .environmentObject(progress),
+                    destination: LevelCompletedView(
+                        levelNumber: 8,
+                        goToMap: $goToMap
+                    )
+                    .environmentObject(progress),
                     isActive: $goToCompletedLevel
+                ) {
+                    EmptyView()
+                }
+                
+                // 🔹 الرجوع الفعلي للرود ماب
+                NavigationLink(
+                    destination: RoadMap()
+                        .environmentObject(progress),
+                    isActive: $goToMap
                 ) {
                     EmptyView()
                 }
@@ -216,7 +222,7 @@ struct Level8Page: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 } else {
-                    // ✅ (4) نهاية الليفل
+                    // ✅ نهاية الليفل
                     goToCompletedLevel = true
                 }
             }
