@@ -6,7 +6,8 @@ enum CharacterType: String {
 }
 
 struct CharacterChoice: View {
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     @EnvironmentObject var progress: GameProgress
     
     // saved permanently in UserDefaults

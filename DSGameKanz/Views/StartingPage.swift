@@ -33,7 +33,13 @@ struct StartingPage: View {
                 .padding(.top, -200)
                 .padding(.leading, -430)
             }//end of vstack
-            
+           
+                VStack(){
+                    
+                    
+                }
+                
+                
         }//end of Zstack
          }//end of nagivsationstack
     }//end of var

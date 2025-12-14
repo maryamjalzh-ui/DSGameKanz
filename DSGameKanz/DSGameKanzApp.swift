@@ -9,12 +9,12 @@ import SwiftUI
 
 @main
 struct DSGameKanzApp: App {
-    @StateObject var progress = GameProgress() // إنشاء الكائن هنا مرة واحدة
+    @StateObject private var languageManager = LanguageManager()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(progress) // تمرير الكائن
+                .environmentObject(languageManager)
         }
     }
 }
