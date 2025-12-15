@@ -1,3 +1,8 @@
+//  Level4Page.swift
+//  DSGameKanz
+//
+//  Created by Maryam Jalal Alzahrani on 20/06/1447 AH.
+//
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -11,8 +16,6 @@ struct Level4Page: View {
     
     @State private var dragOffset: CGFloat = 0
     @State private var isDragging: Bool = false
-    
-    @State private var bounce: Bool = false
     
     @State private var completedQuestions = 0
     let totalQuestionsInLevel = 5
@@ -68,7 +71,7 @@ struct Level4Page: View {
                         
                         VStack(spacing: 50) {
                             
-                            // 🔊 + 📝 (التعديل الوحيد هنا)
+                            // 🔊 + 📝
                             HStack(spacing: 16) {
                                 
                                 Button {
@@ -78,6 +81,7 @@ struct Level4Page: View {
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
                                         .offset(y: 4)
+                                        .shadow(radius: 10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
@@ -107,12 +111,7 @@ struct Level4Page: View {
                                         .environment(\.layoutDirection, .rightToLeft)
                                         .padding(6)
                                         .id(columns[index])
-                                        .offset(
-                                            x: isSelected ? dragOffset : 0,
-                                            y: isSelected && !isDragging
-                                                ? (bounce ? -4 : 4)
-                                                : 0
-                                        )
+                                        .offset(x: isSelected ? dragOffset : 0)
                                         .scaleEffect(isSelected ? 1.06 : 1.0)
                                         .shadow(
                                             color: isSelected ? Color.Burgundy.opacity(0.8) : .clear,
@@ -154,7 +153,7 @@ struct Level4Page: View {
                             }
                             .shadow(radius: 10)
                         )
-                        .frame(maxWidth: 700)
+                        .frame(maxWidth: 600)
                         .padding(.horizontal, 50)
                         
                         Image(isSortedCorrectly() ? "happy" : "thinking")
@@ -172,7 +171,6 @@ struct Level4Page: View {
                 }
             }
             .onAppear {
-                startBounce()
                 generateNewPuzzle()
                 BackgroundMusicManager.shared.playVoiceOver("level4voiceover")
             }
@@ -181,15 +179,6 @@ struct Level4Page: View {
     }
     
     // MARK: - Logic (بدون أي تغيير)
-    
-    private func startBounce() {
-        withAnimation(
-            .easeInOut(duration: 0.6)
-                .repeatForever(autoreverses: true)
-        ) {
-            bounce.toggle()
-        }
-    }
     
     private func generateNewPuzzle() {
         let possible = [1, 2, 3, 4]
@@ -252,7 +241,6 @@ struct Level4Page: View {
         Array(columns.reversed()) == columns.sorted(by: >)
     }
 }
-
 
 // MARK: - Preview
 struct Level4Page_Previews: PreviewProvider {

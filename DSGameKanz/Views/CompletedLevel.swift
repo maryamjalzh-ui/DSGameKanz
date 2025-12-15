@@ -33,11 +33,13 @@ struct LevelCompletedView: View {
                     Text("أحسنت!")
                         .font(.custom("Farah", size: 50))
                         .foregroundColor(.CinnamonWood)
+                        .shadow(radius: 10)
 
                     if let imageName = unlockedCharacterImageName {
                         Text("لقد حصلت على صديق جديد")
                             .font(.custom("Farah", size: 30))
                             .foregroundColor(.black.opacity(0.7))
+                            .shadow(radius: 10)
 
                         Image(imageName)
                             .resizable()
@@ -59,6 +61,7 @@ struct LevelCompletedView: View {
                             .padding(.vertical, 14)
                             .background(Color.Burgundy)
                             .cornerRadius(18)
+                            .shadow(radius: 10)
                     }
                     .padding(.top, 20)
                 }

@@ -98,6 +98,7 @@ struct Level7Page: View {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
+                                        .shadow(radius: 10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
@@ -107,7 +108,7 @@ struct Level7Page: View {
                                     .shadow(radius: 10)
                             }
                             .padding(.top, 50)
-
+                            .padding(.horizontal, 50)
                             
                             // ===== العدّ البصري =====
                             HStack(spacing: 16) {
@@ -167,15 +168,23 @@ struct Level7Page: View {
                             
                         }
                         .background(
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.PacificBlue.opacity(0.25))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.Fern, lineWidth: 5)
+                            ZStack {
+                                LinearGradient(
+                                    colors: [Color.Fern.opacity(0.18), Color.clear],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
                                 )
-                                .shadow(radius: 10)
+                                .cornerRadius(25)
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color.PacificBlue.opacity(0.25))
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            }
+                            .shadow(radius: 10)
                         )
-                        .frame(maxWidth: 700)
+                        .frame(maxWidth: 600)
                         .padding(.horizontal, 50)
                         .onDrop(of: [.plainText], isTargeted: nil) { _ in
                             handleDrop()

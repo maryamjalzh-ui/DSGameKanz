@@ -89,11 +89,14 @@ struct NumberChoiceButton: View {
     var body: some View {
         Button(action: action) {
             Text("\(number)")
-                .font(.title2)
+                .font(.system(size: 34, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 100, height: 50)
                 .background(buttonColor)
                 .cornerRadius(15)
+                .shadow(radius: 10)
+                
+            
         }
         .disabled(isInteractionDisabled)
     }

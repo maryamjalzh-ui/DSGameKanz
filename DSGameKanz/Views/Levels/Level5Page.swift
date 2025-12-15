@@ -1,30 +1,32 @@
+//  Level5Page.swift
+//  DSGameKanz
+//
+//  Created by Maryam Jalal Alzahrani on 20/06/1447 AH.
+//
+
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct Level5Page: View {
     
-    // ✅ (1) ربط التقدم
     @EnvironmentObject var progress: GameProgress
     
-    let treasureSymbols = ["🌴", "💎", "🪵", "🪙", "🧭", "🏝️"]
+    let treasureSymbols = ["🌴", "💎", "🪵", "🪙", "🗺️", "🏝️"]
     
     @State private var columns: [Int] = []
     @State private var columnSymbols: [Int: String] = [:]
     @State private var dropTargets: [Int] = []
     @State private var solvedColumns: Set<Int> = []
     @State private var correctTargets: Set<Int> = []
-
+    
+    @State private var wrongTarget: Int? = nil   // 👈 جديد
+    
     @State private var completedQuestions = 0
     let totalQuestionsInLevel = 5
     
     @State private var showConfetti = false
-    @State private var showAlert = false
     @State private var isFullySolved = false
     
-    // ⭐ فلاش "أحسنت"
-    @State private var showSuccessFlash = false
-    
-    // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
     @State private var goToMap = false
     
@@ -75,9 +77,7 @@ struct Level5Page: View {
                         
                         VStack(spacing: 10) {
                             
-                            // 🔊 + 📝 (التغيير الوحيد هنا)
                             HStack(spacing: 16) {
-                                
                                 Button {
                                     BackgroundMusicManager.shared.playVoiceOver("level5voiveover")
                                 } label: {
@@ -85,6 +85,7 @@ struct Level5Page: View {
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
                                         .offset(y: 4)
+                                        .shadow(radius: 10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
@@ -95,13 +96,12 @@ struct Level5Page: View {
                             }
                             .padding(.top, 50)
                             .padding(.horizontal, 30)
-
-                            // الأعمدة (فوق)
+                            
+                            // الأعمدة
                             HStack(spacing: 50) {
                                 ForEach(columns, id: \.self) { value in
                                     
                                     if !solvedColumns.contains(value) {
-                                        
                                         let symbol = columnSymbols[value] ?? "💎"
                                         
                                         VStack(spacing: 6) {
@@ -112,23 +112,24 @@ struct Level5Page: View {
                                         }
                                         .padding(10)
                                         .id(value)
-                                        .transition(.asymmetric(
-                                            insertion: .scale.animation(.easeOut(duration: 0.3)),
-                                            removal: .scale.animation(.easeIn(duration: 0.3))
-                                        ))
-                                        .animation(.easeInOut(duration: 0.3), value: solvedColumns)
                                         .draggable("\(value)")
                                     }
                                 }
                             }
-
-                            // الأرقام (تحت)
+                            
+                            // الأهداف
                             HStack(spacing: 40) {
                                 ForEach(dropTargets, id: \.self) { option in
                                     
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 20)
-                                            .fill(correctTargets.contains(option) ? Color.Fern : Color.Burgundy)
+                                            .fill(
+                                                correctTargets.contains(option)
+                                                ? Color.Fern
+                                                : (wrongTarget == option
+                                                   ? Color.CinnamonWood
+                                                   : Color.Burgundy)
+                                            )
                                             .frame(width: 100, height: 60)
                                             .shadow(radius: 6)
                                         
@@ -144,15 +145,23 @@ struct Level5Page: View {
                             .padding(.bottom, 40)
                         }
                         .background(
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.PacificBlue.opacity(0.25))
-                                .shadow(radius: 10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.Fern, lineWidth: 5)
+                            ZStack {
+                                LinearGradient(
+                                    colors: [Color.Fern.opacity(0.18), Color.clear],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
                                 )
+                                .cornerRadius(25)
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color.PacificBlue.opacity(0.25))
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            }
+                            .shadow(radius: 10)
                         )
-                        .frame(maxWidth: 700)
+                        .frame(maxWidth: 600)
                         .padding(.horizontal, 50)
                         
                         Image(isFullySolved ? "happy" : "thinking")
@@ -169,41 +178,16 @@ struct Level5Page: View {
                 if showConfetti {
                     ConfettiView().zIndex(20)
                 }
-                
-                if showSuccessFlash {
-                    ZStack {
-                        Color.black.opacity(0.2)
-                            .ignoresSafeArea()
-                        
-                        ZStack {
-                            Image("HandsOnMap")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: 600)
-                            
-                            Text("أحسنت!")
-                                .font(.custom("Farah", size: 70))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .offset(y: -120)
-                        }
-                        .transition(.scale)
-                    }
-                    .zIndex(50)
-                }
             }
             .onAppear {
                 generateNewPuzzle()
                 BackgroundMusicManager.shared.playVoiceOver("level5voiveover")
             }
-            .alert("إجابة خاطئة", isPresented: $showAlert) {
-                Button("إعادة المحاولة") {}
-            }
         }
         .navigationViewStyle(.stack)
     }
     
-    // MARK: - Logic (بدون تغيير)
+    // MARK: - Logic
     
     private func generateNewPuzzle() {
         let possible = [2, 3, 4, 5, 6]
@@ -239,21 +223,10 @@ struct Level5Page: View {
                     solvedColumns.insert(target)
                     correctTargets.insert(target)
                     
-                    withAnimation {
-                        solvedColumns.insert(draggedValue)
-                    }
-                    
                     if solvedColumns.count == columns.count {
                         isFullySolved = true
                         completedQuestions += 1
                         showConfetti = true
-                        
-                        if completedQuestions == totalQuestionsInLevel {
-                            showSuccessFlash = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                showSuccessFlash = false
-                            }
-                        }
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             showConfetti = false
@@ -263,14 +236,16 @@ struct Level5Page: View {
                         }
                     }
                 } else {
-                    showAlert = true
+                    wrongTarget = target
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                        wrongTarget = nil
+                    }
                 }
             }
         }
         return true
     }
 }
-
 
 // MARK: - Preview
 struct Level5Page_Previews: PreviewProvider {

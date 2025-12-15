@@ -28,11 +28,10 @@ struct Level8Page: View {
     let totalQuestionsInLevel = 5
     
     @State private var showConfetti = false
-    @State private var showAlert = false
     
     // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
-    @State private var goToMap = false   // 👈 الجديد
+    @State private var goToMap = false
     
     // MARK: - Emoji Sets
     let emojiSets: [String] = ["🏝️", "🗝️", "💰", "💎", "🗺️"]
@@ -91,13 +90,15 @@ struct Level8Page: View {
                         VStack(spacing: 40) {
                             
                             HStack(spacing: 16) {
-                                
                                 Button {
                                     BackgroundMusicManager.shared.playVoiceOver("level8voiceover")
                                 } label: {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
+                                        .shadow(radius: 10)
+                                        .offset(y: 4)
+                                        .padding(.top, -10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
@@ -108,7 +109,8 @@ struct Level8Page: View {
                                     .padding(.horizontal, 5)
                             }
                             .padding(.top, 60)
-
+                            .padding(.horizontal, 50)
+                            
                             // ===== المجموعات =====
                             HStack(spacing: 80) {
                                 
@@ -159,15 +161,23 @@ struct Level8Page: View {
                             .padding(.bottom, 40)
                         }
                         .background(
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.PacificBlue.opacity(0.25))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.Fern, lineWidth: 5)
+                            ZStack {
+                                LinearGradient(
+                                    colors: [Color.Fern.opacity(0.18), Color.clear],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
                                 )
-                                .shadow(radius: 10)
+                                .cornerRadius(25)
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color.PacificBlue.opacity(0.25))
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            }
+                            .shadow(radius: 10)
                         )
-                        .frame(maxWidth: 700)
+                        .frame(maxWidth: 600)
                         .padding(.horizontal, 50)
                         
                         Image(isCorrect ? "happy" : "thinking")
@@ -186,14 +196,7 @@ struct Level8Page: View {
             }
             .onAppear {
                 generateNewQuestion()
-            }
-            .onAppear {
                 BackgroundMusicManager.shared.playVoiceOver("level8voiceover")
-            }
-            .alert("حاول مرة أخرى", isPresented: $showAlert) {
-                Button("حسنًا") {
-                    selectedAnswer = nil
-                }
             }
         }
         .navigationViewStyle(.stack)
@@ -237,12 +240,16 @@ struct Level8Page: View {
                 if completedQuestions < totalQuestionsInLevel {
                     generateNewQuestion()
                 } else {
-                    // ✅ نهاية الليفل
                     goToCompletedLevel = true
                 }
             }
         } else {
-            showAlert = true
+            // ❌ خطأ → لون فقط ثم رجوع
+            isCorrect = false
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                selectedAnswer = nil
+            }
         }
     }
     

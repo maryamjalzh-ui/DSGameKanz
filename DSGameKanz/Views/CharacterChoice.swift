@@ -56,15 +56,16 @@ struct CharacterChoice: View {
                             .foregroundColor(.CinnamonWood)
                     }
                     .accessibilityLabel("تشغيل الصوت")
-
+                    
                     // 📝 النص
                     Text("اختر شخصيتك!")
                 }
-
+                
                 .font(.custom("Farah", size: 60))
                 .padding(.top, -250)
                 .foregroundColor(.CinnamonWood)
-
+                .shadow(radius: 10)
+                
                 VStack {
                     Spacer().frame(height: 80)
                     
@@ -83,7 +84,7 @@ struct CharacterChoice: View {
                                     .offset(y: float ? -8 : 8)
                                     .animation(
                                         .easeInOut(duration: 1.0)
-                                            .repeatForever(autoreverses: true),
+                                        .repeatForever(autoreverses: true),
                                         value: float
                                     )
                                 
@@ -115,7 +116,7 @@ struct CharacterChoice: View {
                                     .offset(y: float ? 8 : -8)
                                     .animation(
                                         .easeInOut(duration: 1.0)
-                                            .repeatForever(autoreverses: true),
+                                        .repeatForever(autoreverses: true),
                                         value: float
                                     )
                                 
@@ -123,7 +124,7 @@ struct CharacterChoice: View {
                                     selectedCharacterRaw = CharacterType.male.rawValue
                                     
                                     // link to profile character (change name if needed)
-                                    progress.selectMainCharacter("yousef")
+                                    progress.selectMainCharacter("jack")
                                     
                                 } label: {
                                     Text("2")
@@ -153,7 +154,7 @@ struct CharacterChoice: View {
                                 .offset(y: float ? -8 : 8)
                                 .animation(
                                     .easeInOut(duration: 1.0)
-                                        .repeatForever(autoreverses: true),
+                                    .repeatForever(autoreverses: true),
                                     value: float
                                 )
                             
@@ -183,12 +184,16 @@ struct CharacterChoice: View {
                     Spacer().frame(height: 9)
                 }
                 .onAppear {
+                    float = true
+                    selectedCharacterRaw = ""
+                    
                     if !didPlayCharacterVoice {
-                        BackgroundMusicManager.shared.playVoiceOver("secondpagevoiceover")
-                        didPlayCharacterVoice = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            BackgroundMusicManager.shared.playVoiceOver("secondpagevoiceover")
+                            didPlayCharacterVoice = true
+                        }
                     }
                 }
-
             }
             .navigationBarBackButtonHidden(true)
             .onAppear {

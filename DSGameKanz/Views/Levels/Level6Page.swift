@@ -24,7 +24,6 @@ struct Level6Page: View {
     let totalQuestionsInLevel = 5
     
     @State private var showConfetti = false
-    @State private var showAlert = false
     
     // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
@@ -76,9 +75,8 @@ struct Level6Page: View {
                         
                         VStack(spacing: 40) {
                             
-                            // 🔊 + 📝 (التغيير الوحيد)
+                            // 🔊 + 📝
                             HStack(spacing: 16) {
-                                
                                 Button {
                                     BackgroundMusicManager.shared.playVoiceOver("level6voiceover")
                                 } label: {
@@ -86,6 +84,7 @@ struct Level6Page: View {
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
                                         .offset(y: 4)
+                                        .shadow(radius: 10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
@@ -102,7 +101,6 @@ struct Level6Page: View {
                             
                             HStack(spacing: 16) {
                                 ForEach(0..<totalCount, id: \.self) { index in
-                                    
                                     Image("kanz")
                                         .resizable()
                                         .scaledToFit()
@@ -121,7 +119,6 @@ struct Level6Page: View {
                             // ===== الخيارات =====
                             HStack(spacing: 30) {
                                 ForEach(options, id: \.self) { option in
-                                    
                                     Button {
                                         handleAnswer(option)
                                     } label: {
@@ -139,15 +136,23 @@ struct Level6Page: View {
                             .padding(.bottom, 40)
                         }
                         .background(
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.PacificBlue.opacity(0.25))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.Fern, lineWidth: 5)
+                            ZStack {
+                                LinearGradient(
+                                    colors: [Color.Fern.opacity(0.18), Color.clear],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
                                 )
-                                .shadow(radius: 10)
+                                .cornerRadius(25)
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color.PacificBlue.opacity(0.25))
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            }
+                            .shadow(radius: 10)
                         )
-                        .frame(maxWidth: 700)
+                        .frame(maxWidth: 600)
                         .padding(.horizontal, 50)
                         
                         Image(isCorrect ? "happy" : "thinking")
@@ -167,11 +172,6 @@ struct Level6Page: View {
             .onAppear {
                 BackgroundMusicManager.shared.playVoiceOver("level6voiceover")
                 generateNewQuestion()
-            }
-            .alert("حاول مرة أخرى", isPresented: $showAlert) {
-                Button("حسنًا") {
-                    selectedOption = nil
-                }
             }
         }
         .navigationViewStyle(.stack)
@@ -213,7 +213,12 @@ struct Level6Page: View {
                 : (goToCompletedLevel = true)
             }
         } else {
-            showAlert = true
+            // ❌ خطأ → لون فقط ثم رجوع
+            isCorrect = false
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                selectedOption = nil
+            }
         }
     }
     
@@ -224,7 +229,6 @@ struct Level6Page: View {
         return Color.Burgundy
     }
 }
-
 
 // MARK: - Preview
 struct Level6Page_Previews: PreviewProvider {

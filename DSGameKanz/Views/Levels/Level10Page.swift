@@ -99,6 +99,7 @@ struct Level10Page: View {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
+                                        .shadow(radius: 10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
@@ -108,6 +109,7 @@ struct Level10Page: View {
                                     .shadow(radius: 10)
                             }
                             .padding(.top, 60)
+                            .padding(.horizontal, 60)
                             
                             HStack(spacing: 40) {
                                 emojiGroup(count: rightCount)
@@ -147,15 +149,23 @@ struct Level10Page: View {
                             .padding(.bottom, 40)
                         }
                         .background(
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.PacificBlue.opacity(0.25))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.Fern, lineWidth: 5)
+                            ZStack {
+                                LinearGradient(
+                                    colors: [Color.Fern.opacity(0.18), Color.clear],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
                                 )
-                                .shadow(radius: 10)
+                                .cornerRadius(25)
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color.PacificBlue.opacity(0.25))
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            }
+                            .shadow(radius: 10)
                         )
-                        .frame(maxWidth: 720)
+                        .frame(maxWidth: 600)
                         .padding(.horizontal, 50)
                         
                         Image(isCorrect ? "happy" : "thinking")

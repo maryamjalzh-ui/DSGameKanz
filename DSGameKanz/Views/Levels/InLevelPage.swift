@@ -1,3 +1,12 @@
+
+//
+//  inLevelPage.swift
+//  DSGameKanz
+//
+//  Created by Maryam Jalal Alzahrani
+//
+
+
 import SwiftUI
 
 // MARK: - مولّد الأنماط للمستوى الأول (سهل)
@@ -44,15 +53,12 @@ struct DotPatternGeneratorLevel1 {
 // MARK: - صفحة المستوى الأول
 struct InLevelPage: View {
     
-    @EnvironmentObject var progress: GameProgress   // ✅
+    @EnvironmentObject var progress: GameProgress
     
     @State private var currentPattern: DotPattern = DotPatternGeneratorLevel1.randomPattern(for: 5)
     @State private var options: [Int] = []
     
-    @State private var showingAlert = false
-    @State private var alertMessage = ""
     @State private var isAnswerCorrect = false
-    
     @State private var isInteractionDisabled = false
     @State private var selectedOption: Int?
     
@@ -63,7 +69,7 @@ struct InLevelPage: View {
     
     // 🔹 للانتقال
     @State private var goToCompletedLevel = false
-    @State private var goToMap = false   // ✅
+    @State private var goToMap = false
     
     var body: some View {
         NavigationView {
@@ -115,9 +121,8 @@ struct InLevelPage: View {
                     
                     ZStack(alignment: .bottomTrailing) {
                         VStack (spacing: 45) {
+                            
                             HStack(spacing: 16) {
-                                
-                                // 🔊 زر السماعة
                                 Button {
                                     BackgroundMusicManager.shared.playVoiceOver("level1voiceover")
                                 } label: {
@@ -127,10 +132,8 @@ struct InLevelPage: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
 
-                                // 📝 السؤال
                                 Text("كم عدد النقاط؟")
                             }
-
                             .font(.custom("Farah", size: 50))
                             .shadow(radius: 10)
                             .foregroundColor(.CinnamonWood)
@@ -143,10 +146,12 @@ struct InLevelPage: View {
                                 ForEach(options, id: \.self) { option in
                                     NumberChoiceButton(
                                         number: option,
+                                        
                                         action: { handleAnswer(option) },
                                         selectedOption: $selectedOption,
                                         isCorrectAnswer: currentPattern.number,
                                         isInteractionDisabled: isInteractionDisabled
+                                        
                                     )
                                 }
                             }
@@ -154,14 +159,26 @@ struct InLevelPage: View {
                             .padding(.bottom, 60)
                         }
                         .background(
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.PacificBlue.opacity(0.25))
-                                .shadow(radius: 10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.Fern, lineWidth: 5)
+                            ZStack {
+                                LinearGradient(
+                                    colors: [
+                                        Color.Fern.opacity(0.18),
+                                        Color.clear
+                                    ],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
                                 )
+                                .cornerRadius(25)
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color.PacificBlue.opacity(0.25))
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            }
+                            .shadow(radius: 10)
                         )
+
                         .frame(maxWidth: 600)
                         
                         Image(isInteractionDisabled && isAnswerCorrect ? "happy" : "thinking")
@@ -184,20 +201,9 @@ struct InLevelPage: View {
             }
             .onAppear {
                 BackgroundMusicManager.shared.playVoiceOver("level1voiceover")
+                generateNewQuestion()
             }
-
-            .onAppear { generateNewQuestion() }
             .disabled(isInteractionDisabled)
-            .alert(isPresented: $showingAlert) {
-                Alert(
-                    title: Text("إجابة خاطئة"),
-                    message: Text(alertMessage),
-                    dismissButton: .default(Text("أعد المحاولة")) {
-                        isInteractionDisabled = false
-                        selectedOption = nil
-                    }
-                )
-            }
         }
         .navigationViewStyle(.stack)
     }
@@ -209,7 +215,6 @@ struct InLevelPage: View {
         options = newOptions
         isInteractionDisabled = false
         selectedOption = nil
-        showingAlert = false
     }
     
     private func handleAnswer(_ answer: Int) {
@@ -218,7 +223,9 @@ struct InLevelPage: View {
         
         if answer == currentPattern.number {
             isAnswerCorrect = true
-            withAnimation { completedQuestions += 1 }
+            withAnimation {
+                completedQuestions += 1
+            }
             
             showConfetti = true
             
@@ -233,11 +240,12 @@ struct InLevelPage: View {
             }
             
         } else {
+            // ❌ خطأ → لون فقط ثم رجوع
             isAnswerCorrect = false
-            alertMessage = "للأسف الإجابة خاطئة"
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                showingAlert = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                isInteractionDisabled = false
+                selectedOption = nil
             }
         }
     }

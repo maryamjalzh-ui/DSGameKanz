@@ -1,12 +1,4 @@
-//
-// ProfilePage.swift
-// الكود الأصلي مع تعديل المعاينة (Preview)
-//
-
 import SwiftUI
-
-// يجب أن يكون لديك struct GameProgress ليعمل هذا الكود
-// (سأفترض أنه موجود)
 
 struct ProfilePage: View {
     
@@ -42,9 +34,35 @@ struct ProfilePage: View {
                 Image("main1")
                     .resizable()
                     .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
                     .clipped()
+                
+                // ⚙️ زر إعدادات الصوت (مرتبط مباشرة بالمانجر)
+                VStack {
+                    HStack {
+                        Spacer()
+                        
+                        Button {
+                            toggleBackgroundMusic()
+                        } label: {
+                            Image(systemName:
+                                BackgroundMusicManager.shared.isMusicOn()
+                                ? "speaker.wave.2.fill"
+                                : "speaker.slash.fill"
+                            )
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.Burgundy)
+                            .padding(14)
+                            .background(Color.white.opacity(0.85))
+                            .clipShape(Circle())
+                            .shadow(radius: 6)
+                        }
+                        .padding(.trailing, 30)
+                        .padding(.top, 20)
+                    }
+                    
+                    Spacer()
+                }
                 
                 VStack(spacing: 100) {
                     
@@ -69,7 +87,15 @@ struct ProfilePage: View {
         }
     }
     
-    /// يبني عنصر شخصية واحدة – ويقرّر إذا كانت مقفلة أو مفتوحة
+    // MARK: - Actions
+    
+    private func toggleBackgroundMusic() {
+        let current = BackgroundMusicManager.shared.isMusicOn()
+        BackgroundMusicManager.shared.setMusicEnabled(!current)
+    }
+    
+    // MARK: - Character UI
+    
     @ViewBuilder
     private func profileCharacter(name: String) -> some View {
         let isUnlocked = progress.unlockedCharacters.contains(name)
@@ -82,7 +108,6 @@ struct ProfilePage: View {
                 box
             }
             .buttonStyle(.plain)
-            
         } else {
             box
         }
@@ -121,7 +146,6 @@ struct ProfilePage: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(
                     Color(
-                        // يفترض أن لديك extension لـ Color.init(hex:)
                         hex: isUnlocked
                         ? (selected == name ? "#A30000" : "#7B0909")
                         : "#7B0909"
@@ -135,9 +159,7 @@ struct ProfilePage: View {
     }
 }
 
-// 🛑 التعديل لتشغيل المعاينة (Preview) بنجاح
-#Preview {
-    // يجب افتراض وجود struct GameProgress
+#Preview(traits: .landscapeLeft)  {
     let progress = GameProgress()
     progress.selectMainCharacter("nina")
     progress.unlockedCharacters.insert("hopper")

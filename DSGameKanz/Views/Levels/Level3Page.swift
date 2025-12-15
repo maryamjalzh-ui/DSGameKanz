@@ -1,16 +1,11 @@
-//
-//  Level4Page.swift
-//  DSGameKanz
-//
-//  Created by Maryam Jalal Alzahrani on 20/06/1447 AH.
-//
-//
-//  Level4Page.swift
-//  DSGameKanz
-//
-//  Created by Maryam Jalal Alzahrani on 20/06/1447 AH.
-//
 
+//
+//
+//  Level3Page.swift
+//  DSGameKanz
+//
+//  Created by Maryam Jalal Alzahrani on 20/06/1447 AH.
+//
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -25,8 +20,6 @@ struct Level3Page: View {
     @State private var dragOffset: CGFloat = 0
     @State private var isDragging: Bool = false
     
-    @State private var bounce: Bool = false
-    
     @State private var completedQuestions = 0
     let totalQuestionsInLevel = 5
     
@@ -34,7 +27,7 @@ struct Level3Page: View {
     
     // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
-    @State private var goToMap = false   // 👈 الجديد
+    @State private var goToMap = false
     
     var body: some View {
         NavigationView {
@@ -48,18 +41,14 @@ struct Level3Page: View {
                     )
                     .environmentObject(progress),
                     isActive: $goToCompletedLevel
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
                 // 🔹 الرجوع الفعلي للرود ماب
                 NavigationLink(
                     destination: RoadMap()
                         .environmentObject(progress),
                     isActive: $goToMap
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
                 // الخلفية
                 Image("BluredMap")
@@ -97,8 +86,8 @@ struct Level3Page: View {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
-                                        .padding(.top, 50)
-                                        .padding(.trailing, -40)
+                                        .offset(y: 4)
+                                        .shadow(radius: 10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
@@ -106,9 +95,10 @@ struct Level3Page: View {
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
-                                    .padding(.top, 50)
-                                    .padding(.horizontal, 50)
                             }
+                            .padding(.top, 50)
+                            .padding(.horizontal, 50)
+                            
                             // ======== الأعمدة ========
                             HStack(spacing: 50) {
                                 ForEach(columns.indices, id: \.self) { index in
@@ -128,13 +118,7 @@ struct Level3Page: View {
                                         .environment(\.layoutDirection, .rightToLeft)
                                         .padding(6)
                                         .id(columns[index])
-                                        
-                                        .offset(
-                                            x: isSelected ? dragOffset : 0,
-                                            y: isSelected && !isDragging
-                                                ? (bounce ? -4 : 4)
-                                                : 0
-                                        )
+                                        .offset(x: isSelected ? dragOffset : 0)
                                         .scaleEffect(isSelected ? 1.06 : 1.0)
                                         .shadow(
                                             color: isSelected ? Color.Burgundy.opacity(0.8) : .clear,
@@ -180,7 +164,7 @@ struct Level3Page: View {
                             }
                             .shadow(radius: 10)
                         )
-                        .frame(maxWidth: 700)
+                        .frame(maxWidth: 600)
                         .padding(.horizontal, 50)
                         
                         Image(isSortedCorrectly() ? "happy" : "thinking")
@@ -198,10 +182,7 @@ struct Level3Page: View {
                 }
             }
             .onAppear {
-                startBounce()
                 generateNewPuzzle()
-            }
-            .onAppear {
                 BackgroundMusicManager.shared.playVoiceOver("level3voiceover")
             }
         }
@@ -209,15 +190,6 @@ struct Level3Page: View {
     }
     
     // MARK: - Logic
-    
-    private func startBounce() {
-        withAnimation(
-            .easeInOut(duration: 0.6)
-                .repeatForever(autoreverses: true)
-        ) {
-            bounce.toggle()
-        }
-    }
     
     private func generateNewPuzzle() {
         let possible = [1, 2, 3, 4]
@@ -230,9 +202,7 @@ struct Level3Page: View {
             
             let i = Int.random(in: 0..<current.count)
             var j = Int.random(in: 0..<current.count)
-            while j == i {
-                j = Int.random(in: 0..<current.count)
-            }
+            while j == i { j = Int.random(in: 0..<current.count) }
             
             current.swapAt(i, j)
             columns = current
@@ -243,7 +213,7 @@ struct Level3Page: View {
         dragOffset = 0
         isDragging = false
     }
-
+    
     private func handleDragEnd(translation: CGFloat) {
         let threshold: CGFloat = 80
         var newIndex = selectedIndex
@@ -253,8 +223,7 @@ struct Level3Page: View {
                 columns.swapAt(selectedIndex, selectedIndex + 1)
                 newIndex = selectedIndex + 1
             }
-        }
-        else if translation < -threshold && selectedIndex > 0 {
+        } else if translation < -threshold && selectedIndex > 0 {
             withAnimation(.easeInOut(duration: 0.25)) {
                 columns.swapAt(selectedIndex, selectedIndex - 1)
                 newIndex = selectedIndex - 1
@@ -278,12 +247,9 @@ struct Level3Page: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 showConfetti = false
-                if completedQuestions < totalQuestionsInLevel {
-                    generateNewPuzzle()
-                } else {
-                    // ✅ نهاية الليفل
-                    goToCompletedLevel = true
-                }
+                completedQuestions < totalQuestionsInLevel
+                ? generateNewPuzzle()
+                : (goToCompletedLevel = true)
             }
         }
     }
@@ -293,6 +259,7 @@ struct Level3Page: View {
     }
 }
 
+// MARK: - Preview
 struct Level3Page_Previews: PreviewProvider {
     static var previews: some View {
         Level3Page()

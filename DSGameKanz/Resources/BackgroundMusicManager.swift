@@ -2,27 +2,44 @@
 //  BackgroundMusicManager.swift
 //  DSGameKanz
 //
-//  Created by Maryam Jalal Alzahrani on 24/06/1447 AH.
+//  Created by Maryam Jalal Alzahrani
 //
 
 import Foundation
 import AVFoundation
+import SwiftUI
 
 final class BackgroundMusicManager {
     
     static let shared = BackgroundMusicManager()
     
-    // 🎵 موسيقى الخلفية
+    // 🎵 مشغل الموسيقى
     private var musicPlayer: AVAudioPlayer?
     
-    // 🗣️ فويس أوفر
+    // 🗣️ مشغل الفويس أوفر
     private var voicePlayer: AVAudioPlayer?
-
+    
+    // 🔑 حفظ حالة الموسيقى
+    @AppStorage("isMusicEnabled") private var isMusicEnabled: Bool = true
+    
     private init() {}
 
     // MARK: - Background Music
     
-    func startMusic() {
+    /// تشغيل الموسيقى بعد تأخير (مثلاً بعد السبلاش)
+    func startMusic(after delay: TimeInterval = 3.0) {
+        guard isMusicEnabled else { return }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            guard self.isMusicEnabled else { return }
+            self.playBackgroundMusic()
+        }
+    }
+    
+    /// التشغيل الفعلي
+    private func playBackgroundMusic() {
+        if musicPlayer?.isPlaying == true { return }
+        
         guard let url = Bundle.main.url(
             forResource: "backgroundMusic",
             withExtension: "mp3"
@@ -41,13 +58,32 @@ final class BackgroundMusicManager {
         }
     }
 
+    /// إيقاف الموسيقى
     func stopMusic() {
-        musicPlayer?.stop()
+        musicPlayer?.pause()
+    }
+    
+    // MARK: - Public Control (للإعدادات)
+    
+    /// تغيير حالة الموسيقى (زر ON / OFF)
+    func setMusicEnabled(_ enabled: Bool) {
+        isMusicEnabled = enabled
+        
+        if enabled {
+            playBackgroundMusic()
+        } else {
+            stopMusic()
+        }
+    }
+    
+    /// قراءة الحالة (للزر)
+    func isMusicOn() -> Bool {
+        isMusicEnabled
     }
 
     // MARK: - Voice Over
     
-    /// تشغيل فويس أوفر (مرة واحدة)
+    /// تشغيل فويس أوفر مرة واحدة
     func playVoiceOver(_ fileName: String) {
         guard let url = Bundle.main.url(
             forResource: fileName,
@@ -58,10 +94,9 @@ final class BackgroundMusicManager {
         }
 
         do {
-            // نوقف أي فويس سابق
             voicePlayer?.stop()
             
-            // نخفض صوت الموسيقى شوي
+            // خفض صوت الموسيقى مؤقتًا
             musicPlayer?.volume = 0.15
             
             voicePlayer = try AVAudioPlayer(contentsOf: url)

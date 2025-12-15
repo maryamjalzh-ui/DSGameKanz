@@ -1,3 +1,12 @@
+
+//
+//  Level2Page.swift
+//  DSGameKanz
+//
+//  Created by Maryam Jalal Alzahrani
+//
+
+
 import SwiftUI
 
 // MARK: - مولّد الأنماط للمستوى الثاني (نفس صعوبة ليفل ١)
@@ -68,18 +77,14 @@ struct DotPatternViewLevel2: View {
 // MARK: - صفحة المستوى الثاني
 struct Level2Page: View {
     
-    // ✅ Environment
     @EnvironmentObject var progress: GameProgress
     
-    // رموز Treasure Hunt
     let treasureSymbols = ["🗺️", "🪵", "💎", "🦜", "🪙", "🏝️"]
 
     @State private var currentPattern: DotPattern = DotPatternGeneratorLevel2.randomPattern(for: 5)
     @State private var options: [Int] = []
     @State private var currentSymbol: String = "⛏️"
 
-    @State private var showingAlert = false
-    @State private var alertMessage = ""
     @State private var isAnswerCorrect = false
     @State private var isInteractionDisabled = false
     @State private var selectedOption: Int?
@@ -143,9 +148,8 @@ struct Level2Page: View {
 
                     ZStack(alignment: .bottomTrailing) {
                         VStack(spacing: 45) {
+                            
                             HStack(spacing: 16) {
-                                
-                                // 🔊 زر السماعة
                                 Button {
                                     BackgroundMusicManager.shared.playVoiceOver("level2voiceover")
                                 } label: {
@@ -153,9 +157,9 @@ struct Level2Page: View {
                                         .font(.system(size: 40))
                                         .foregroundColor(.CinnamonWood)
                                         .padding(.top, 50)
+                                        .shadow(radius: 10)
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
-                                
                                 
                                 Text("كم عدد الأشكال؟")
                                     .font(.custom("Farah", size: 50))
@@ -163,6 +167,7 @@ struct Level2Page: View {
                                     .foregroundColor(.CinnamonWood)
                                     .padding(.top, 50)
                             }
+
                             DotPatternViewLevel2(
                                 pattern: currentPattern,
                                 symbol: currentSymbol
@@ -184,14 +189,26 @@ struct Level2Page: View {
                             .padding(.bottom, 60)
                         }
                         .background(
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.PacificBlue.opacity(0.25))
-                                .shadow(radius: 10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(Color.Fern, lineWidth: 5)
+                            ZStack {
+                                LinearGradient(
+                                    colors: [
+                                        Color.Fern.opacity(0.18),
+                                        Color.clear
+                                    ],
+                                    startPoint: .trailing,
+                                    endPoint: .leading
                                 )
+                                .cornerRadius(25)
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color.PacificBlue.opacity(0.25))
+                                
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.Fern, lineWidth: 5)
+                            }
+                            .shadow(radius: 10)
                         )
+
                         .frame(maxWidth: 600)
 
                         Image(isInteractionDisabled && isAnswerCorrect ? "happy" : "thinking")
@@ -214,19 +231,9 @@ struct Level2Page: View {
             }
             .onAppear {
                 BackgroundMusicManager.shared.playVoiceOver("level2voiceover")
+                generateNewQuestion()
             }
-            .onAppear { generateNewQuestion() }
             .disabled(isInteractionDisabled)
-            .alert(isPresented: $showingAlert) {
-                Alert(
-                    title: Text("إجابة خاطئة"),
-                    message: Text(alertMessage),
-                    dismissButton: .default(Text("أعد المحاولة")) {
-                        isInteractionDisabled = false
-                        selectedOption = nil
-                    }
-                )
-            }
         }
         .navigationViewStyle(.stack)
     }
@@ -239,7 +246,6 @@ struct Level2Page: View {
         currentSymbol = treasureSymbols.randomElement() ?? "⛏️"
         isInteractionDisabled = false
         selectedOption = nil
-        showingAlert = false
     }
 
     private func handleAnswer(_ answer: Int) {
@@ -261,11 +267,12 @@ struct Level2Page: View {
                 }
             }
         } else {
+            // ❌ خطأ → لون فقط ثم رجوع
             isAnswerCorrect = false
-            alertMessage = "للأسف الإجابة خاطئة"
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                showingAlert = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                isInteractionDisabled = false
+                selectedOption = nil
             }
         }
     }
