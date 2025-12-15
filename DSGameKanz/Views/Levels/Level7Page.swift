@@ -90,13 +90,24 @@ struct Level7Page: View {
                     ZStack(alignment: .bottomTrailing) {
                         
                         VStack(spacing: 35) {
-                            
-                            Text("اسحب من الكنز حتى نكمل العدد")
-                                .font(.custom("Farah", size: 50))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .padding(.top, 60)
-                                .padding(.horizontal, 150)
+                            HStack(spacing: 16) {
+                                
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level7voiceover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                Text("اسحب من الكنز حتى نكمل العدد")
+                                    .font(.custom("Farah", size: 50))
+                                    .foregroundColor(.CinnamonWood)
+                                    .shadow(radius: 10)
+                            }
+                            .padding(.top, 50)
+
                             
                             // ===== العدّ البصري =====
                             HStack(spacing: 16) {
@@ -147,6 +158,9 @@ struct Level7Page: View {
                             .environment(\.layoutDirection, .leftToRight)
                             .frame(width: 120, height: 120)
                             .onAppear { sparkleTick.toggle() }
+                            .onAppear {
+                                BackgroundMusicManager.shared.playVoiceOver("level7voiceover")
+                            }
                             .onDrag {
                                 NSItemProvider(object: "kanz" as NSString)
                             }

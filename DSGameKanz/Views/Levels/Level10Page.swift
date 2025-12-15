@@ -91,11 +91,23 @@ struct Level10Page: View {
                         
                         VStack(spacing: 40) {
                             
-                            Text("اختر الإجابة الصحيحة")
-                                .font(.custom("Farah", size: 50))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .padding(.top, 60)
+                            HStack(spacing: 16) {
+                                
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("finallevelsvoiceovers")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                Text("إختر الإجابة الصحيحة")
+                                    .font(.custom("Farah", size: 50))
+                                    .foregroundColor(.CinnamonWood)
+                                    .shadow(radius: 10)
+                            }
+                            .padding(.top, 60)
                             
                             HStack(spacing: 40) {
                                 emojiGroup(count: rightCount)
@@ -161,6 +173,9 @@ struct Level10Page: View {
                 }
             }
             .onAppear { generateNewQuestion() }
+            .onAppear {
+                BackgroundMusicManager.shared.playVoiceOver("finallevelsvoiceovers")
+            }
         }
         .navigationViewStyle(.stack)
     }

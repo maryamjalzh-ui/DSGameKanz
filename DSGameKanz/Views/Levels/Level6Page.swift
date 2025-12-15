@@ -28,14 +28,13 @@ struct Level6Page: View {
     
     // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
-    @State private var goToMap = false   // 👈 الجديد
+    @State private var goToMap = false
     
     // MARK: - UI
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 صفحة الإكمال
                 NavigationLink(
                     destination: LevelCompletedView(
                         levelNumber: 6,
@@ -43,26 +42,19 @@ struct Level6Page: View {
                     )
                     .environmentObject(progress),
                     isActive: $goToCompletedLevel
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
-                // 🔹 الرجوع الفعلي للرود ماب
                 NavigationLink(
                     destination: RoadMap()
                         .environmentObject(progress),
                     isActive: $goToMap
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
-                // الخلفية
                 Image("BluredMap")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-                // الخريطة + شريط التقدم
                 ZStack(alignment: .topLeading) {
                     Image("HandsOnMap")
                         .resizable()
@@ -84,12 +76,26 @@ struct Level6Page: View {
                         
                         VStack(spacing: 40) {
                             
-                            Text("كم تبقّى من الكنوز؟")
-                                .font(.custom("Farah", size: 50))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .padding(.top, 60)
-                                .padding(.horizontal, 150)
+                            // 🔊 + 📝 (التغيير الوحيد)
+                            HStack(spacing: 16) {
+                                
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level6voiceover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                        .offset(y: 4)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                Text("كم تبقّى من الكنوز؟")
+                                    .font(.custom("Farah", size: 50))
+                                    .foregroundColor(.CinnamonWood)
+                                    .shadow(radius: 10)
+                            }
+                            .padding(.top, 60)
+                            .padding(.horizontal, 150)
                             
                             // ===== الكنوز =====
                             let visibleCount = totalCount - hiddenCount
@@ -144,7 +150,6 @@ struct Level6Page: View {
                         .frame(maxWidth: 700)
                         .padding(.horizontal, 50)
                         
-                        // الشخصية
                         Image(isCorrect ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -155,12 +160,14 @@ struct Level6Page: View {
                     Spacer()
                 }
                 
-                // الكونفيتي
                 if showConfetti {
                     ConfettiView().zIndex(20)
                 }
             }
-            .onAppear { generateNewQuestion() }
+            .onAppear {
+                BackgroundMusicManager.shared.playVoiceOver("level6voiceover")
+                generateNewQuestion()
+            }
             .alert("حاول مرة أخرى", isPresented: $showAlert) {
                 Button("حسنًا") {
                     selectedOption = nil
@@ -170,7 +177,7 @@ struct Level6Page: View {
         .navigationViewStyle(.stack)
     }
     
-    // MARK: - Logic
+    // MARK: - Logic (بدون تغيير)
     
     private func generateNewQuestion() {
         let total = Int.random(in: 3...6)
@@ -201,12 +208,9 @@ struct Level6Page: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 showConfetti = false
-                if completedQuestions < totalQuestionsInLevel {
-                    generateNewQuestion()
-                } else {
-                    // ✅ نهاية الليفل
-                    goToCompletedLevel = true
-                }
+                completedQuestions < totalQuestionsInLevel
+                ? generateNewQuestion()
+                : (goToCompletedLevel = true)
             }
         } else {
             showAlert = true
@@ -214,21 +218,13 @@ struct Level6Page: View {
     }
     
     private func buttonColor(for option: Int) -> Color {
-        guard let selected = selectedOption else {
-            return Color.Burgundy
-        }
-        
-        if option == selected && isCorrect {
-            return Color.Fern
-        }
-        
-        if option == selected && !isCorrect {
-            return Color.CinnamonWood
-        }
-        
+        guard let selected = selectedOption else { return Color.Burgundy }
+        if option == selected && isCorrect { return Color.Fern }
+        if option == selected && !isCorrect { return Color.CinnamonWood }
         return Color.Burgundy
     }
 }
+
 
 // MARK: - Preview
 struct Level6Page_Previews: PreviewProvider {

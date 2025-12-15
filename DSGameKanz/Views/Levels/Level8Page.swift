@@ -90,13 +90,25 @@ struct Level8Page: View {
                         
                         VStack(spacing: 40) {
                             
-                            Text("هل المجموعتان متساويتان؟")
-                                .font(.custom("Farah", size: 50))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .padding(.top, 60)
-                                .padding(.horizontal, 150)
-                            
+                            HStack(spacing: 16) {
+                                
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level8voiceover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                Text("هل المجموعتان متساويتان؟")
+                                    .font(.custom("Farah", size: 50))
+                                    .foregroundColor(.CinnamonWood)
+                                    .shadow(radius: 10)
+                                    .padding(.horizontal, 5)
+                            }
+                            .padding(.top, 60)
+
                             // ===== المجموعات =====
                             HStack(spacing: 80) {
                                 
@@ -174,6 +186,9 @@ struct Level8Page: View {
             }
             .onAppear {
                 generateNewQuestion()
+            }
+            .onAppear {
+                BackgroundMusicManager.shared.playVoiceOver("level8voiceover")
             }
             .alert("حاول مرة أخرى", isPresented: $showAlert) {
                 Button("حسنًا") {

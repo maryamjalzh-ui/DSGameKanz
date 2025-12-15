@@ -33,7 +33,15 @@ struct StartingPage: View {
                 .padding(.top, -200)
                 .padding(.leading, -430)
             }//end of vstack
-           
+                
+            .onAppear {
+                            BackgroundMusicManager.shared.startMusic()
+                        }
+                
+            .onAppear {
+                BackgroundMusicManager.shared.playVoiceOver("firstpagevoiceover")
+            }
+
                 VStack(){
                     
                     
@@ -46,10 +54,14 @@ struct StartingPage: View {
     
 }
 
+
+
     struct StartingPage_Previews: PreviewProvider {
         static var previews: some View {
             StartingPage()// اختياري: حطي نوع الآيباد
                 .previewInterfaceOrientation(.landscapeLeft) // مهم: يخلي الكانفس عرضي
         }
+        
+         
     }//end of struct
 

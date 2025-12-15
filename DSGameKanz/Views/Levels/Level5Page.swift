@@ -26,14 +26,13 @@ struct Level5Page: View {
     
     // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
-    @State private var goToMap = false   // 👈 الجديد
+    @State private var goToMap = false
     
     
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 صفحة الإكمال
                 NavigationLink(
                     destination: LevelCompletedView(
                         levelNumber: 5,
@@ -41,26 +40,19 @@ struct Level5Page: View {
                     )
                     .environmentObject(progress),
                     isActive: $goToCompletedLevel
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
-                // 🔹 الرجوع الفعلي للرود ماب
                 NavigationLink(
                     destination: RoadMap()
                         .environmentObject(progress),
                     isActive: $goToMap
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
-                // الخلفية Blur
                 Image("BluredMap")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-                // اليدين + الخريطة
                 ZStack(alignment: .topLeading) {
                     Image("HandsOnMap")
                         .resizable()
@@ -83,19 +75,33 @@ struct Level5Page: View {
                         
                         VStack(spacing: 10) {
                             
-                            Text("اسحب الاشكال إلى عددها الصحيح")
-                                .font(.custom("Farah", size: 50))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .padding(.top, 50)
-                                .padding(.horizontal, 30)
+                            // 🔊 + 📝 (التغيير الوحيد هنا)
+                            HStack(spacing: 16) {
+                                
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level5voiveover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                        .offset(y: 4)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                Text("اسحب الاشكال إلى عددها الصحيح")
+                                    .font(.custom("Farah", size: 50))
+                                    .foregroundColor(.CinnamonWood)
+                                    .shadow(radius: 10)
+                            }
+                            .padding(.top, 50)
+                            .padding(.horizontal, 30)
 
                             // الأعمدة (فوق)
                             HStack(spacing: 50) {
                                 ForEach(columns, id: \.self) { value in
                                     
                                     if !solvedColumns.contains(value) {
-
+                                        
                                         let symbol = columnSymbols[value] ?? "💎"
                                         
                                         VStack(spacing: 6) {
@@ -136,7 +142,6 @@ struct Level5Page: View {
                                 }
                             }
                             .padding(.bottom, 40)
-
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 25)
@@ -150,7 +155,6 @@ struct Level5Page: View {
                         .frame(maxWidth: 700)
                         .padding(.horizontal, 50)
                         
-                        // الشخصية
                         Image(isFullySolved ? "happy" : "thinking")
                             .resizable()
                             .scaledToFit()
@@ -162,13 +166,10 @@ struct Level5Page: View {
                     Spacer()
                 }
                 
-                // 🎉 كونفيتي
                 if showConfetti {
-                    ConfettiView()
-                        .zIndex(20)
+                    ConfettiView().zIndex(20)
                 }
                 
-                // ⭐ فلاش "أحسنت"
                 if showSuccessFlash {
                     ZStack {
                         Color.black.opacity(0.2)
@@ -191,7 +192,10 @@ struct Level5Page: View {
                     .zIndex(50)
                 }
             }
-            .onAppear { generateNewPuzzle() }
+            .onAppear {
+                generateNewPuzzle()
+                BackgroundMusicManager.shared.playVoiceOver("level5voiveover")
+            }
             .alert("إجابة خاطئة", isPresented: $showAlert) {
                 Button("إعادة المحاولة") {}
             }
@@ -199,8 +203,7 @@ struct Level5Page: View {
         .navigationViewStyle(.stack)
     }
     
-    
-    // MARK: - Logic
+    // MARK: - Logic (بدون تغيير)
     
     private func generateNewPuzzle() {
         let possible = [2, 3, 4, 5, 6]
@@ -221,18 +224,16 @@ struct Level5Page: View {
         dropTargets = columns.shuffled()
     }
     
-    
     private func handleDrop(providers: [NSItemProvider], target: Int) -> Bool {
-        
         guard let provider = providers.first else { return false }
         
         provider.loadObject(ofClass: NSString.self) { object, _ in
-            
-            guard let ns = object as? NSString else { return }
-            guard let draggedValue = Int(ns as String) else { return }
+            guard
+                let ns = object as? NSString,
+                let draggedValue = Int(ns as String)
+            else { return }
             
             DispatchQueue.main.async {
-                
                 if draggedValue == target {
                     
                     solvedColumns.insert(target)
@@ -243,14 +244,12 @@ struct Level5Page: View {
                     }
                     
                     if solvedColumns.count == columns.count {
-                        
                         isFullySolved = true
                         completedQuestions += 1
                         showConfetti = true
                         
                         if completedQuestions == totalQuestionsInLevel {
                             showSuccessFlash = true
-                            
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                                 showSuccessFlash = false
                             }
@@ -258,22 +257,16 @@ struct Level5Page: View {
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             showConfetti = false
-                            
-                            if completedQuestions < totalQuestionsInLevel {
-                                generateNewPuzzle()
-                            } else {
-                                // ✅ نهاية الليفل
-                                goToCompletedLevel = true
-                            }
+                            completedQuestions < totalQuestionsInLevel
+                            ? generateNewPuzzle()
+                            : (goToCompletedLevel = true)
                         }
                     }
-                    
                 } else {
                     showAlert = true
                 }
             }
         }
-        
         return true
     }
 }

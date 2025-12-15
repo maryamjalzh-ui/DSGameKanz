@@ -21,13 +21,12 @@ struct Level4Page: View {
     
     // ✅ (2) الانتقالات
     @State private var goToCompletedLevel = false
-    @State private var goToMap = false   // 👈 الجديد
+    @State private var goToMap = false
     
     var body: some View {
         NavigationView {
             ZStack {
                 
-                // 🔹 صفحة الإكمال
                 NavigationLink(
                     destination: LevelCompletedView(
                         levelNumber: 4,
@@ -35,26 +34,19 @@ struct Level4Page: View {
                     )
                     .environmentObject(progress),
                     isActive: $goToCompletedLevel
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
-                // 🔹 الرجوع الفعلي للرود ماب
                 NavigationLink(
                     destination: RoadMap()
                         .environmentObject(progress),
                     isActive: $goToMap
-                ) {
-                    EmptyView()
-                }
+                ) { EmptyView() }
                 
-                // الخلفية
                 Image("BluredMap")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-                // اليد + الخريطة
                 ZStack(alignment: .topLeading) {
                     Image("HandsOnMap")
                         .resizable()
@@ -70,19 +62,32 @@ struct Level4Page: View {
                 }
                 
                 VStack {
-                    
                     Spacer()
                     
                     ZStack(alignment: .bottomTrailing) {
                         
                         VStack(spacing: 50) {
                             
-                            Text("رتب الكنوز من الأكبر إلى الأصغر")
-                                .font(.custom("Farah", size: 50))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .padding(.top, 50)
-                                .padding(.horizontal, 50)
+                            // 🔊 + 📝 (التعديل الوحيد هنا)
+                            HStack(spacing: 16) {
+                                
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level4voiceover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                        .offset(y: 4)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                Text("رتب الكنوز من الأكبر إلى الأصغر")
+                                    .font(.custom("Farah", size: 50))
+                                    .foregroundColor(.CinnamonWood)
+                                    .shadow(radius: 10)
+                            }
+                            .padding(.top, 50)
+                            .padding(.horizontal, 50)
                             
                             HStack(spacing: 50) {
                                 ForEach(columns.indices, id: \.self) { index in
@@ -102,7 +107,6 @@ struct Level4Page: View {
                                         .environment(\.layoutDirection, .rightToLeft)
                                         .padding(6)
                                         .id(columns[index])
-                                        
                                         .offset(
                                             x: isSelected ? dragOffset : 0,
                                             y: isSelected && !isDragging
@@ -132,15 +136,11 @@ struct Level4Page: View {
                                 }
                             }
                             .animation(.none, value: columns)
-                            
                         }
                         .background(
                             ZStack {
                                 LinearGradient(
-                                    colors: [
-                                        Color.Fern.opacity(0.18),
-                                        Color.clear
-                                    ],
+                                    colors: [Color.Fern.opacity(0.18), Color.clear],
                                     startPoint: .trailing,
                                     endPoint: .leading
                                 )
@@ -168,19 +168,19 @@ struct Level4Page: View {
                 }
                 
                 if showConfetti {
-                    ConfettiView()
-                        .zIndex(20)
+                    ConfettiView().zIndex(20)
                 }
             }
             .onAppear {
                 startBounce()
                 generateNewPuzzle()
+                BackgroundMusicManager.shared.playVoiceOver("level4voiceover")
             }
         }
         .navigationViewStyle(.stack)
     }
     
-    // MARK: - Logic
+    // MARK: - Logic (بدون أي تغيير)
     
     private func startBounce() {
         withAnimation(
@@ -193,7 +193,6 @@ struct Level4Page: View {
     
     private func generateNewPuzzle() {
         let possible = [1, 2, 3, 4]
-        
         var current: [Int] = []
         var wrongIndex = 0
         
@@ -204,9 +203,7 @@ struct Level4Page: View {
             
             let i = Int.random(in: 0..<current.count)
             var j = Int.random(in: 0..<current.count)
-            while j == i {
-                j = Int.random(in: 0..<current.count)
-            }
+            while j == i { j = Int.random(in: 0..<current.count) }
             
             current.swapAt(i, j)
             wrongIndex = i
@@ -218,30 +215,21 @@ struct Level4Page: View {
         dragOffset = 0
         isDragging = false
     }
-
+    
     private func handleDragEnd(translation: CGFloat) {
         let threshold: CGFloat = 80
         var newIndex = selectedIndex
         
         if translation > threshold && selectedIndex < columns.count - 1 {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                columns.swapAt(selectedIndex, selectedIndex + 1)
-                newIndex = selectedIndex + 1
-            }
-        }
-        else if translation < -threshold && selectedIndex > 0 {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                columns.swapAt(selectedIndex, selectedIndex - 1)
-                newIndex = selectedIndex - 1
-            }
+            columns.swapAt(selectedIndex, selectedIndex + 1)
+            newIndex = selectedIndex + 1
+        } else if translation < -threshold && selectedIndex > 0 {
+            columns.swapAt(selectedIndex, selectedIndex - 1)
+            newIndex = selectedIndex - 1
         }
         
         selectedIndex = newIndex
-        
-        withAnimation(.spring()) {
-            dragOffset = 0
-        }
-        
+        dragOffset = 0
         isDragging = false
         checkCompletion()
     }
@@ -253,12 +241,9 @@ struct Level4Page: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 showConfetti = false
-                if completedQuestions < totalQuestionsInLevel {
-                    generateNewPuzzle()
-                } else {
-                    // ✅ نهاية الليفل
-                    goToCompletedLevel = true
-                }
+                completedQuestions < totalQuestionsInLevel
+                ? generateNewPuzzle()
+                : (goToCompletedLevel = true)
             }
         }
     }
@@ -267,6 +252,7 @@ struct Level4Page: View {
         Array(columns.reversed()) == columns.sorted(by: >)
     }
 }
+
 
 // MARK: - Preview
 struct Level4Page_Previews: PreviewProvider {

@@ -88,14 +88,27 @@ struct Level3Page: View {
                     ZStack(alignment: .bottomTrailing) {
                         
                         VStack(spacing: 50) {
-                            
-                            Text("رتب الكنوز من الأصغر إلى الأكبر")
-                                .font(.custom("Farah", size: 50))
-                                .foregroundColor(.CinnamonWood)
-                                .shadow(radius: 10)
-                                .padding(.top, 50)
-                                .padding(.horizontal, 50)
-                            
+                            HStack(spacing: 16) {
+                                
+                                // 🔊 زر السماعة
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level3voiceover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                        .padding(.top, 50)
+                                        .padding(.trailing, -40)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                Text("رتب الكنوز من الأصغر إلى الأكبر")
+                                    .font(.custom("Farah", size: 50))
+                                    .foregroundColor(.CinnamonWood)
+                                    .shadow(radius: 10)
+                                    .padding(.top, 50)
+                                    .padding(.horizontal, 50)
+                            }
                             // ======== الأعمدة ========
                             HStack(spacing: 50) {
                                 ForEach(columns.indices, id: \.self) { index in
@@ -187,6 +200,9 @@ struct Level3Page: View {
             .onAppear {
                 startBounce()
                 generateNewPuzzle()
+            }
+            .onAppear {
+                BackgroundMusicManager.shared.playVoiceOver("level3voiceover")
             }
         }
         .navigationViewStyle(.stack)

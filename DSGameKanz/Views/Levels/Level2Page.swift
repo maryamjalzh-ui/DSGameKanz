@@ -143,13 +143,26 @@ struct Level2Page: View {
 
                     ZStack(alignment: .bottomTrailing) {
                         VStack(spacing: 45) {
-
-                            Text("كم عدد الأشكال؟")
-                                .font(.custom("Farah", size: 50))
-                                .shadow(radius: 10)
-                                .foregroundColor(.CinnamonWood)
-                                .padding(.top, 50)
-
+                            HStack(spacing: 16) {
+                                
+                                // 🔊 زر السماعة
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level2voiceover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                        .padding(.top, 50)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+                                
+                                
+                                Text("كم عدد الأشكال؟")
+                                    .font(.custom("Farah", size: 50))
+                                    .shadow(radius: 10)
+                                    .foregroundColor(.CinnamonWood)
+                                    .padding(.top, 50)
+                            }
                             DotPatternViewLevel2(
                                 pattern: currentPattern,
                                 symbol: currentSymbol
@@ -198,6 +211,9 @@ struct Level2Page: View {
                         .zIndex(1)
                         .allowsHitTesting(false)
                 }
+            }
+            .onAppear {
+                BackgroundMusicManager.shared.playVoiceOver("level2voiceover")
             }
             .onAppear { generateNewQuestion() }
             .disabled(isInteractionDisabled)

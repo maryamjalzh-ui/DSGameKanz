@@ -115,12 +115,26 @@ struct InLevelPage: View {
                     
                     ZStack(alignment: .bottomTrailing) {
                         VStack (spacing: 45) {
-                            
-                            Text("كم عدد النقاط؟")
-                                .font(.custom("Farah", size: 50))
-                                .shadow(radius: 10)
-                                .foregroundColor(.CinnamonWood)
-                                .padding(.top, 50)
+                            HStack(spacing: 16) {
+                                
+                                // 🔊 زر السماعة
+                                Button {
+                                    BackgroundMusicManager.shared.playVoiceOver("level1voiceover")
+                                } label: {
+                                    Image(systemName: "speaker.wave.2.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.CinnamonWood)
+                                }
+                                .accessibilityLabel("تشغيل صوت السؤال")
+
+                                // 📝 السؤال
+                                Text("كم عدد النقاط؟")
+                            }
+
+                            .font(.custom("Farah", size: 50))
+                            .shadow(radius: 10)
+                            .foregroundColor(.CinnamonWood)
+                            .padding(.top, 50)
                             
                             DotPatternView(pattern: currentPattern)
                                 .padding(.vertical, 10)
@@ -168,6 +182,10 @@ struct InLevelPage: View {
                         .allowsHitTesting(false)
                 }
             }
+            .onAppear {
+                BackgroundMusicManager.shared.playVoiceOver("level1voiceover")
+            }
+
             .onAppear { generateNewQuestion() }
             .disabled(isInteractionDisabled)
             .alert(isPresented: $showingAlert) {

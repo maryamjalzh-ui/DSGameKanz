@@ -12,7 +12,8 @@ struct CharacterChoice: View {
     
     // saved permanently in UserDefaults
     @AppStorage("selectedCharacter") private var selectedCharacterRaw: String = ""
-    
+    @AppStorage("didPlayCharacterVoice") private var didPlayCharacterVoice = false
+
     @State private var float = false
     @State private var goToRoadmap = false   // controls NavigationLink
     
@@ -44,13 +45,26 @@ struct CharacterChoice: View {
                     .ignoresSafeArea()
                 
                 // title
-                VStack(alignment: .center, spacing: 8) {
+                HStack(spacing: 16) {
+                    
+                    // 🔊 زر السماعة
+                    Button {
+                        BackgroundMusicManager.shared.playVoiceOver("secondpagevoiceover")
+                    } label: {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.system(size: 44))
+                            .foregroundColor(.CinnamonWood)
+                    }
+                    .accessibilityLabel("تشغيل الصوت")
+
+                    // 📝 النص
                     Text("اختر شخصيتك!")
                 }
+
                 .font(.custom("Farah", size: 60))
                 .padding(.top, -250)
                 .foregroundColor(.CinnamonWood)
-                
+
                 VStack {
                     Spacer().frame(height: 80)
                     
@@ -168,6 +182,13 @@ struct CharacterChoice: View {
                     
                     Spacer().frame(height: 9)
                 }
+                .onAppear {
+                    if !didPlayCharacterVoice {
+                        BackgroundMusicManager.shared.playVoiceOver("secondpagevoiceover")
+                        didPlayCharacterVoice = true
+                    }
+                }
+
             }
             .navigationBarBackButtonHidden(true)
             .onAppear {
