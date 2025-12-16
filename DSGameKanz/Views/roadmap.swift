@@ -7,7 +7,6 @@ struct MapLevel: Identifiable {
     let isUnlocked: Bool
 }
 
-
 struct RoadMap: View {
 
     @EnvironmentObject var progress: GameProgress
@@ -27,17 +26,14 @@ struct RoadMap: View {
         ]
     }
 
-
     var body: some View {
         GeometryReader { geo in
             ZStack {
 
-                // الخلفية
                 Image("RoadMapp")
                     .resizable()
                     .ignoresSafeArea()
 
-                // زر Profile
                 VStack {
                     HStack {
                         Spacer()
@@ -54,7 +50,6 @@ struct RoadMap: View {
                     Spacer()
                 }
 
-                // نص بداية رحلتك
                 VStack {
                     HStack {
                         Text("بداية رحلتك")
@@ -68,7 +63,6 @@ struct RoadMap: View {
                     Spacer()
                 }
 
-                // نص لقد وصلت
                 VStack {
                     Spacer()
                     HStack {
@@ -82,7 +76,6 @@ struct RoadMap: View {
                     }
                 }
 
-                // الليفلات
                 ForEach(levels) { level in
 
                     let isUnlocked = progress.completedLevels >= level.id - 1
@@ -113,41 +106,31 @@ struct RoadMap: View {
     @ViewBuilder
     private func destinationView(for level: Int) -> some View {
         switch level {
-        case 1:
-            InLevelPage()
-        case 2:
-            Level2Page()
-        case 3:
-            Level3Page()
-        case 4:
-            Level4Page()
-        case 5:
-            Level5Page()
-        case 6:
-            Level6Page()
-        case 7:
-            Level7Page()
-        case 8:
-            Level8Page()
-        case 9:
-            Level9Page()
-        case 10:
-            Level10Page()
-        default:
-            InLevelPage()
+        case 1: InLevelPage()
+        case 2: Level2Page()
+        case 3: Level3Page()
+        case 4: Level4Page()
+        case 5: Level5Page()
+        case 6: Level6Page()
+        case 7: Level7Page()
+        case 8: Level8Page()
+        case 9: Level9Page()
+        case 10: Level10Page()
+        default: InLevelPage()
         }
     }
 
-    // شكل دائرة الليفل
+    // MARK: - شكل دائرة الليفل (التعديل هنا فقط)
     private func levelCircle(unlocked: Bool) -> some View {
         Circle()
-            .fill(Color.white)
+            .fill(unlocked ? Color.CinnamonWood : Color.white)
             .frame(width: 86, height: 86)
             .overlay(
                 Circle()
                     .stroke(
-                        unlocked ? Color.black.opacity(0.9)
-                                 : Color.white.opacity(0.4),
+                        unlocked
+                        ? Color.black.opacity(0.9)
+                        : Color.CinnamonWood.opacity(0.4),
                         lineWidth: 4
                     )
             )

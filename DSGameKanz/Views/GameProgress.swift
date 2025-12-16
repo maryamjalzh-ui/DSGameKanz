@@ -23,7 +23,20 @@ final class GameProgress: ObservableObject {
     }
 
     // MARK: - Constants
-    private let allCharactersOrder: [String] = ["nina", "hopper", "jack", "yousef", "maya"]
+    private var allCharactersOrder: [String] {
+        guard let main = mainCharacter else {
+            return ["nina", "hopper", "jack", "yousef", "maya"]
+        }
+
+        if main == "jack" {
+            // 👦 لاعب ولد → أول صديق بنت
+            return ["jack", "nina", "hopper", "yousef", "maya"]
+        } else {
+            // 👧 لاعبة بنت → أول صديق ولد
+            return ["nina", "jack", "hopper", "yousef", "maya"]
+        }
+    }
+
 
     // MARK: - Init (تحميل التقدم)
     init() {
@@ -61,14 +74,14 @@ final class GameProgress: ObservableObject {
     private func unlockNextCharacterIfNeeded() {
         guard let main = mainCharacter else { return }
 
-        if unlockedCharacters.count >= allCharactersOrder.count { return }
+        let ordered = allCharactersOrder.filter { $0 != main }
 
-        if let next = allCharactersOrder.first(where: {
-            $0 != main && !unlockedCharacters.contains($0)
-        }) {
+        if unlockedCharacters.count - 1 < ordered.count {
+            let next = ordered[unlockedCharacters.count - 1]
             unlockedCharacters.insert(next)
         }
     }
+
 
     // MARK: - Helpers (للرود ماب)
     func isLevelUnlocked(_ level: Int) -> Bool {

@@ -13,7 +13,7 @@ struct StartingPage: View {
                 
                 VStack(alignment: .center, spacing: 8){
                     Text("هل انت مستعد لمساعدتي")
-                    Text("في إيجاد أصدفائي؟")
+                    Text("في إيجاد أصدقائي؟")
                 }//end of Vstack
                 .font(.custom("Farah", size:50))
                 .padding(.top, -220)

@@ -3,15 +3,32 @@ import SwiftUI
 struct LevelCompletedView: View {
 
     let levelNumber: Int
-    @Binding var goToMap: Bool   // 👈 الجديد
+    @Binding var goToMap: Bool
 
     @EnvironmentObject var progress: GameProgress
 
     // MARK: - Character Logic
     var unlockedCharacterImageName: String? {
-        // تظهر كل ليفلين (2، 4، 6، 8، 10)
-        guard levelNumber % 2 == 0 else { return nil }
+        // فقط ليفلات زوجية ما عدا الأخير
+        guard levelNumber % 2 == 0, levelNumber < 10 else { return nil }
+
+        // 🔴 حالة خاصة: Level 2
+        if levelNumber == 2 {
+            if progress.mainCharacter == "jack" {
+                return "level 2-happy"   // 👦
+            } else {
+                return "level2happyjack"     // 👧 (نينا)
+            }
+        }
+
+        // باقي الليفلات نفس السابق
         return "level \(levelNumber)-happy"
+    }
+
+    
+    // MARK: - نهاية اللعبة
+    var isFinalLevel: Bool {
+        levelNumber == 10
     }
 
     var body: some View {
@@ -28,14 +45,37 @@ struct LevelCompletedView: View {
                     .scaledToFit()
                     .padding()
 
-                VStack(spacing: 20) {
+                VStack(spacing: 0) {
 
                     Text("أحسنت!")
                         .font(.custom("Farah", size: 50))
                         .foregroundColor(.CinnamonWood)
                         .shadow(radius: 10)
 
-                    if let imageName = unlockedCharacterImageName {
+                    // =========================
+                    // 🏁 حالة نهاية اللعبة (Level 10)
+                    // =========================
+                    if isFinalLevel {
+
+                        // 🔽 غيّري النص براحتك
+                        Text(" لقد أنهيت الرحلة بنجاح!")
+                            .font(.custom("Farah", size: 34))
+                            .foregroundColor(.black.opacity(0.75))
+                            .shadow(radius: 8)
+                        
+
+                        // 🔽 غيّري اسم الصورة براحتك
+                        Image("FinalLevel")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 500)
+
+                    }
+                    // =========================
+                    // 🤝 فتح صديق جديد (بقية الليفلات الزوجية)
+                    // =========================
+                    else if let imageName = unlockedCharacterImageName {
+
                         Text("لقد حصلت على صديق جديد")
                             .font(.custom("Farah", size: 30))
                             .foregroundColor(.black.opacity(0.7))
@@ -70,14 +110,13 @@ struct LevelCompletedView: View {
     }
 }
 
-
 // MARK: - Preview
 struct LevelCompletedView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             LevelCompletedView(
-                levelNumber: 2,
-                goToMap: .constant(false)   // ✅ حل البرفيو
+                levelNumber: 10,
+                goToMap: .constant(false)
             )
             .environmentObject(GameProgress())
         }
