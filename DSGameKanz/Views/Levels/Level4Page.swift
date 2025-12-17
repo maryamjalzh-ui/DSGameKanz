@@ -10,7 +10,8 @@ struct Level4Page: View {
     
     // ✅ (1) ربط التقدم
     @EnvironmentObject var progress: GameProgress
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     @State private var columns: [Int] = []
     @State private var selectedIndex: Int = 0
     
@@ -85,7 +86,9 @@ struct Level4Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("رتب الكنوز من الأكبر إلى الأصغر")
+                                Text(languageManager.isArabic
+                                                             ? "رتب الكنوز من الأكبر إلى الأصغر"
+                                                             : "Sort the treasures from largest to smallest")
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
@@ -246,6 +249,7 @@ struct Level4Page: View {
 struct Level4Page_Previews: PreviewProvider {
     static var previews: some View {
         Level4Page()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

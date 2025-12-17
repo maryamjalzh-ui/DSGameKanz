@@ -52,7 +52,8 @@ struct DotPatternGeneratorLevel1 {
 
 // MARK: - صفحة المستوى الأول
 struct InLevelPage: View {
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     @EnvironmentObject var progress: GameProgress
     
     @State private var currentPattern: DotPattern = DotPatternGeneratorLevel1.randomPattern(for: 5)
@@ -132,7 +133,9 @@ struct InLevelPage: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
 
-                                Text("كم عدد النقاط؟")
+                                Text(languageManager.isArabic
+                                                                 ? "كم عدد النقاط"
+                                                                 : "How many dots are there?")
                             }
                             .font(.custom("Farah", size: 50))
                             .shadow(radius: 10)
@@ -255,6 +258,7 @@ struct InLevelPage: View {
 struct InLevelPage_Previews: PreviewProvider {
     static var previews: some View {
         InLevelPage()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

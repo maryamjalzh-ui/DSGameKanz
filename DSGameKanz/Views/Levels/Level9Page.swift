@@ -11,7 +11,8 @@ struct Level9Page: View {
     
     // ✅ (1) ربط التقدم
     @EnvironmentObject var progress: GameProgress
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     // MARK: - State
     
     let treasureEmojis = ["🗺️", "⚓️", "🛶", "🗝️", "📜"]
@@ -100,7 +101,9 @@ struct Level9Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("إختر الإجابة الصحيحة")
+                                Text(languageManager.isArabic
+                                                                 ?"إختر الإجابة الصحيحة" : "Choose the correct answer.")
+
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
@@ -300,6 +303,7 @@ struct ShakeEffect1: GeometryEffect {
 struct Level9Page_Previews: PreviewProvider {
     static var previews: some View {
         Level9Page()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

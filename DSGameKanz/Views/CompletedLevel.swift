@@ -4,6 +4,7 @@ struct LevelCompletedView: View {
 
     let levelNumber: Int
     @Binding var goToMap: Bool
+    @EnvironmentObject var languageManager: LanguageManager
 
     @EnvironmentObject var progress: GameProgress
 
@@ -47,7 +48,7 @@ struct LevelCompletedView: View {
 
                 VStack(spacing: 0) {
 
-                    Text("أحسنت!")
+                    Text(languageManager.isArabic ? "أحسنت!" : "Good job!")
                         .font(.custom("Farah", size: 50))
                         .foregroundColor(.CinnamonWood)
                         .shadow(radius: 10)
@@ -58,7 +59,7 @@ struct LevelCompletedView: View {
                     if isFinalLevel {
 
                         // 🔽 غيّري النص براحتك
-                        Text(" لقد أنهيت الرحلة بنجاح!")
+                        Text(languageManager.isArabic ? "لقد أنهيت الرحلة بنجاح" : "You have finished the jourey")
                             .font(.custom("Farah", size: 34))
                             .foregroundColor(.black.opacity(0.75))
                             .shadow(radius: 8)
@@ -76,7 +77,7 @@ struct LevelCompletedView: View {
                     // =========================
                     else if let imageName = unlockedCharacterImageName {
 
-                        Text("لقد حصلت على صديق جديد")
+                        Text(languageManager.isArabic ? "لقد حصلت على صديق جديد" : "You have gained a new friend")
                             .font(.custom("Farah", size: 30))
                             .foregroundColor(.black.opacity(0.7))
                             .shadow(radius: 10)
@@ -94,7 +95,7 @@ struct LevelCompletedView: View {
                         // ✅ رجوع فعلي للرود ماب
                         goToMap = true
                     } label: {
-                        Text("العودة للخريطة")
+                        Text(languageManager.isArabic ? "العودة للخريطة" : "Go back to map")
                             .font(.custom("Farah", size: 30))
                             .foregroundColor(.white)
                             .padding(.horizontal, 50)
@@ -119,6 +120,7 @@ struct LevelCompletedView_Previews: PreviewProvider {
                 goToMap: .constant(false)
             )
             .environmentObject(GameProgress())
+            .environmentObject(LanguageManager())
         }
         .previewInterfaceOrientation(.landscapeLeft)
     }

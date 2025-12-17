@@ -11,7 +11,8 @@ struct Level7Page: View {
     
     // ✅ (1) ربط التقدم
     @EnvironmentObject var progress: GameProgress
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     // MARK: - State
     @State private var currentCount: Int = 0
     @State private var targetCount: Int = 0
@@ -102,7 +103,8 @@ struct Level7Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("اسحب من الكنز حتى نكمل العدد")
+                                Text(languageManager.isArabic
+                                                                 ?"اسحب الكنز حتى نكمل العدد" : "Drag the treasure to complete the number.")
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
@@ -257,6 +259,7 @@ struct Level7Page: View {
 struct Level7Page_Previews: PreviewProvider {
     static var previews: some View {
         Level7Page()
+            .environmentObject(LanguageManager())
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

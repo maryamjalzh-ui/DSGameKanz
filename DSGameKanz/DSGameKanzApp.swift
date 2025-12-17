@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct DSGameKanzApp: App {
     @StateObject private var languageManager = LanguageManager()
+    @StateObject private var progress = GameProgress()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(languageManager)
+                .environmentObject(progress)
         }
     }
 }

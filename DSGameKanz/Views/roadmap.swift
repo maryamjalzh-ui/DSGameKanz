@@ -8,6 +8,7 @@ struct MapLevel: Identifiable {
 }
 
 struct RoadMap: View {
+    @EnvironmentObject var languageManager: LanguageManager
 
     @EnvironmentObject var progress: GameProgress
 
@@ -52,7 +53,7 @@ struct RoadMap: View {
 
                 VStack {
                     HStack {
-                        Text("بداية رحلتك")
+                        Text(languageManager.isArabic ? "بداية رحلتك" : "Your journey begins")
                             .font(.custom("Farah", size: 55))
                             .foregroundColor(.white)
                             .shadow(radius: 4)
@@ -67,7 +68,7 @@ struct RoadMap: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        Text("لقد وصلت!")
+                        Text(languageManager.isArabic ? "لقد وصلت!" : "You arrived!")
                             .font(.custom("Farah", size: 55))
                             .foregroundColor(.white)
                             .shadow(radius: 4)
@@ -142,5 +143,6 @@ struct RoadMap: View {
     NavigationStack {
         RoadMap()
             .environmentObject(GameProgress())
+            .environmentObject(LanguageManager())
     }
 }

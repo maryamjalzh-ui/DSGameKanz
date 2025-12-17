@@ -11,7 +11,8 @@ struct Level6Page: View {
     
     // ✅ (1) ربط التقدم
     @EnvironmentObject var progress: GameProgress
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     // MARK: - State
     @State private var totalCount: Int = 0
     @State private var hiddenCount: Int = 0
@@ -88,7 +89,9 @@ struct Level6Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("كم تبقّى من الكنوز؟")
+                                Text(languageManager.isArabic
+                                                                 ? "كم تبقى من الكنوز؟"
+                                                                 : "How many treasures are left?")   
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
@@ -234,6 +237,7 @@ struct Level6Page: View {
 struct Level6Page_Previews: PreviewProvider {
     static var previews: some View {
         Level6Page()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

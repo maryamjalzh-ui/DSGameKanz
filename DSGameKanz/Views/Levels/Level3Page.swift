@@ -10,7 +10,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct Level3Page: View {
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     // ✅ (1) ربط التقدم
     @EnvironmentObject var progress: GameProgress
     
@@ -91,7 +92,9 @@ struct Level3Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("رتب الكنوز من الأصغر إلى الأكبر")
+                                Text(languageManager.isArabic
+                                                                 ? "رتب الكنوز من الأصغر إلى الأكبر"
+                                                                 : "Sort the treasures from smallest to largest")
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
@@ -263,6 +266,7 @@ struct Level3Page: View {
 struct Level3Page_Previews: PreviewProvider {
     static var previews: some View {
         Level3Page()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

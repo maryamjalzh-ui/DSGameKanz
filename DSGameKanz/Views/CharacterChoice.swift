@@ -58,7 +58,10 @@ struct CharacterChoice: View {
                     .accessibilityLabel("تشغيل الصوت")
                     
                     // 📝 النص
-                    Text("اختر شخصيتك!")
+                    Text(languageManager.isArabic
+                                             ? "اختر شخصيتك!"
+                                             : "Choose your character!")
+
                 }
                 
                 .font(.custom("Farah", size: 60))
@@ -167,7 +170,7 @@ struct CharacterChoice: View {
                                 Button {
                                     goToRoadmap = true
                                 } label: {
-                                    Text("ابدأ")
+                                    Text(languageManager.isArabic ? "ابدأ" : "Start")
                                         .font(.custom("Farah", size: 40))
                                         .foregroundColor(.white)
                                         .padding(.horizontal, 60)

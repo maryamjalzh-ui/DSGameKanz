@@ -12,7 +12,8 @@ struct Level8Page: View {
     
     // ✅ (1) ربط التقدم
     @EnvironmentObject var progress: GameProgress
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     // MARK: - State
     @State private var leftCount: Int = 0
     @State private var rightCount: Int = 0
@@ -102,7 +103,8 @@ struct Level8Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("هل المجموعتان متساويتان؟")
+                                Text(languageManager.isArabic
+                                                                 ?"هل المجموعتان متساوية؟" : "Are they equal?")
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
@@ -274,6 +276,7 @@ struct Level8Page: View {
 struct Level8Page_Previews: PreviewProvider {
     static var previews: some View {
         Level8Page()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

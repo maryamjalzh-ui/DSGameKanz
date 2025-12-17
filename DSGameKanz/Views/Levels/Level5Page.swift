@@ -10,7 +10,8 @@ import UniformTypeIdentifiers
 struct Level5Page: View {
     
     @EnvironmentObject var progress: GameProgress
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     let treasureSymbols = ["🌴", "💎", "🪵", "🪙", "🗺️", "🏝️"]
     
     @State private var columns: [Int] = []
@@ -89,7 +90,9 @@ struct Level5Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("اسحب الاشكال إلى عددها الصحيح")
+                                Text(languageManager.isArabic
+                                                                 ? "اسحب الاشكال الى عددها الصحيح"
+                                                                 : "Drag the shapes to their correct number.")
                                     .font(.custom("Farah", size: 50))
                                     .foregroundColor(.CinnamonWood)
                                     .shadow(radius: 10)
@@ -251,6 +254,7 @@ struct Level5Page: View {
 struct Level5Page_Previews: PreviewProvider {
     static var previews: some View {
         Level5Page()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }

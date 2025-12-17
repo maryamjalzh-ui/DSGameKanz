@@ -76,7 +76,8 @@ struct DotPatternViewLevel2: View {
 
 // MARK: - صفحة المستوى الثاني
 struct Level2Page: View {
-    
+    @EnvironmentObject var languageManager: LanguageManager
+
     @EnvironmentObject var progress: GameProgress
     
     let treasureSymbols = ["🗺️", "🪵", "💎", "🦜", "🪙", "🏝️"]
@@ -161,7 +162,9 @@ struct Level2Page: View {
                                 }
                                 .accessibilityLabel("تشغيل صوت السؤال")
                                 
-                                Text("كم عدد الأشكال؟")
+                                Text(languageManager.isArabic
+                                                                 ? "كم عدد الاشكال"
+                                                                 : "How many shapes are there?")
                                     .font(.custom("Farah", size: 50))
                                     .shadow(radius: 10)
                                     .foregroundColor(.CinnamonWood)
@@ -282,6 +285,7 @@ struct Level2Page: View {
 struct Level2Page_Previews: PreviewProvider {
     static var previews: some View {
         Level2Page()
+            .environmentObject(LanguageManager()) 
             .environmentObject(GameProgress())
             .previewInterfaceOrientation(.landscapeLeft)
     }
